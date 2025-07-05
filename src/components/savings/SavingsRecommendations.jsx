@@ -64,7 +64,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
           <div className="bg-slate-700/50 rounded-lg p-3 sm:p-4 border border-slate-600">
             <div className="text-xs sm:text-sm text-slate-400">Current Monthly Savings</div>
             <div className="text-xl sm:text-2xl font-bold text-green-400">
-              ${savingsAmount?.currentSavings?.toFixed(2) || '0.00'}
+              €{savingsAmount?.currentSavings?.toFixed(2) || '0.00'}
             </div>
             <div className="text-xs sm:text-sm text-slate-500">
               {savingsCapacity?.savingsRate?.toFixed(1) || 0}% of income
@@ -74,7 +74,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
           <div className="bg-slate-700/50 rounded-lg p-3 sm:p-4 border border-slate-600">
             <div className="text-xs sm:text-sm text-slate-400">Available for New Goals</div>
             <div className="text-xl sm:text-2xl font-bold text-blue-400">
-              ${savingsAmount?.available?.toFixed(2) || '0.00'}
+              €{savingsAmount?.available?.toFixed(2) || '0.00'}
             </div>
             <div className="text-xs sm:text-sm text-slate-500">After current goals</div>
           </div>
@@ -82,7 +82,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
           <div className="bg-slate-700/50 rounded-lg p-3 sm:p-4 border border-slate-600">
             <div className="text-xs sm:text-sm text-slate-400">Avg Monthly Income</div>
             <div className="text-xl sm:text-2xl font-bold text-slate-200">
-              ${savingsCapacity?.avgIncome?.toFixed(2) || '0.00'}
+              €{savingsCapacity?.avgIncome?.toFixed(2) || '0.00'}
             </div>
             <div className="text-xs sm:text-sm text-slate-500">Last 3 months</div>
           </div>
@@ -95,7 +95,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
               <span className="font-medium text-slate-200 text-sm sm:text-base">Conservative Approach</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-green-400 mb-1">
-              ${savingsAmount?.conservative?.toFixed(2) || '0.00'}
+              €{savingsAmount?.conservative?.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
               Safe amount to save without lifestyle changes
@@ -108,7 +108,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
               <span className="font-medium text-slate-200 text-sm sm:text-base">Aggressive Approach</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-blue-400 mb-1">
-              ${savingsAmount?.aggressive?.toFixed(2) || '0.00'}
+              €{savingsAmount?.aggressive?.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
               Maximum recommended with minor adjustments
@@ -153,7 +153,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
                   
                   <div className="text-xs sm:text-sm text-slate-400 mb-2 break-words">
                     Reduce by {suggestion.reductionPercentage}%: 
-                    ${suggestion.currentAmount.toFixed(2)} → ${suggestion.newAmount.toFixed(2)}
+                    €{suggestion.currentAmount.toFixed(2)} → €{suggestion.newAmount.toFixed(2)}
                   </div>
                   
                   <div className="flex items-center text-xs sm:text-sm text-slate-500">
@@ -163,11 +163,11 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
                 
                 <div className="text-right flex-shrink-0">
                   <div className="text-lg font-bold text-green-400">
-                    +${suggestion.potentialSavings.toFixed(2)}
+                    +€{suggestion.potentialSavings.toFixed(2)}
                   </div>
                   <div className="text-xs sm:text-sm text-slate-500">per month</div>
                   <div className="text-xs text-slate-600">
-                    ${suggestion.annualSavings.toFixed(0)}/year
+                    €{suggestion.annualSavings.toFixed(0)}/year
                   </div>
                 </div>
               </div>
@@ -227,11 +227,11 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
                 
                 <div className="text-right flex-shrink-0">
                   <div className="text-lg font-bold text-purple-400">
-                    +${suggestion.potentialSavings.toFixed(2)}
+                    +€{suggestion.potentialSavings.toFixed(2)}
                   </div>
                   <div className="text-xs sm:text-sm text-slate-500">per month</div>
                   <div className="text-xs text-slate-600">
-                    ${(suggestion.potentialSavings * 12).toFixed(0)}/year
+                    €{(suggestion.potentialSavings * 12).toFixed(0)}/year
                   </div>
                 </div>
               </div>
@@ -264,7 +264,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
         {selectedSuggestions.size > 0 && (
           <div className="bg-green-400/20 text-green-400 px-3 sm:px-4 py-2 rounded-lg border border-green-400/30 text-sm">
             <span className="font-medium">
-              Selected savings: +${getTotalPotentialSavings().toFixed(2)}/month
+              Selected savings: +€{getTotalPotentialSavings().toFixed(2)}/month
             </span>
           </div>
         )}
