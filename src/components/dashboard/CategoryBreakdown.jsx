@@ -48,7 +48,7 @@ const CategoryBreakdown = ({ monthlyData, selectedMonth, setSelectedMonth }) => 
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value) => [`€${value.toLocaleString()}`, 'Amount']} 
+                  formatter={(value, name, props) => [`€${value.toLocaleString()}`, props.payload.name]} 
                   contentStyle={{ 
                     backgroundColor: '#1e293b', 
                     border: '1px solid #374151', 
