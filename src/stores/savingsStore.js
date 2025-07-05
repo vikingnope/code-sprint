@@ -1,12 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-const useSavingsStore = create(
-  persist(
-    (set, get) => ({
-      goals: [],
-      
-      // Add a new goal
+const useSavingsStore = create((set, get) => ({
+  goals: [],
+  selectedSpendingCuts: new Set(),
+  
+  // Add a new goal
       addGoal: (goalData) => {
         const goal = {
           ...goalData,
@@ -67,13 +66,31 @@ const useSavingsStore = create(
       // Clear all goals (useful for testing)
       clearGoals: () => {
         set({ goals: [] })
+      },
+
+      // Spending cuts management
+      toggleSpendingCut: (cutId) => {
+        set((state) => {
+          const currentSelected = state.selectedSpendingCuts instanceof Set 
+            ? state.selectedSpendingCuts 
+            : new Set(state.selectedSpendingCuts || [])
+          const newSelected = new Set(currentSelected)
+          if (newSelected.has(cutId)) {
+            newSelected.delete(cutId)
+          } else {
+            newSelected.add(cutId)
+          }
+          return { selectedSpendingCuts: newSelected }
+        })
+      },
+
+      setSelectedSpendingCuts: (cutIds) => {
+        set({ selectedSpendingCuts: new Set(cutIds) })
+      },
+
+      clearSelectedSpendingCuts: () => {
+        set({ selectedSpendingCuts: new Set() })
       }
-    }),
-    {
-      name: 'savings-goals-storage', // unique name for localStorage key
-      version: 1, // version for migration support
-    }
-  )
-)
+    }))
 
 export default useSavingsStore

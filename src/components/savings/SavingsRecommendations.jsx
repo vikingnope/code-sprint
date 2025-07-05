@@ -5,12 +5,20 @@ import {
   suggestSavingsAmount, 
   generateCutbackSuggestions 
 } from '@/utils/savingsEngine'
+import useSavingsStore from '@/stores/savingsStore'
 
 const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, currentGoals = [] }) => {
   const [activeTab, setActiveTab] = useState('capacity')
   const [savingsAmount, setSavingsAmount] = useState(null)
   const [cutbackSuggestions, setCutbackSuggestions] = useState([])
-  const [selectedSuggestions, setSelectedSuggestions] = useState(new Set())
+  
+  // Use Zustand store for selected suggestions
+  const store = useSavingsStore()
+  const selectedSpendingCutsRaw = store?.selectedSpendingCuts
+  const toggleSpendingCut = store?.toggleSpendingCut
+  
+  // Ensure selectedSpendingCuts is always a Set
+  const selectedSpendingCuts = selectedSpendingCutsRaw instanceof Set ? selectedSpendingCutsRaw : new Set(selectedSpendingCutsRaw || [])
 
   useEffect(() => {
     if (savingsCapacity && Object.keys(savingsCapacity).length > 0) {
@@ -22,11 +30,11 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
   // Recalculate savings amount whenever selected suggestions change
   useEffect(() => {
     if (savingsCapacity && Object.keys(savingsCapacity).length > 0) {
-      const adjustedCapacity = calculateAdjustedCapacity(savingsCapacity, cutbackSuggestions, selectedSuggestions)
+      const adjustedCapacity = calculateAdjustedCapacity(savingsCapacity, cutbackSuggestions, selectedSpendingCuts)
       const amount = suggestSavingsAmount(adjustedCapacity, currentGoals)
       setSavingsAmount(amount)
     }
-  }, [savingsCapacity, currentGoals, cutbackSuggestions, selectedSuggestions])
+  }, [savingsCapacity, currentGoals, cutbackSuggestions, selectedSpendingCuts])
 
   const calculateAdjustedCapacity = (originalCapacity, cutbacks, selectedSuggestions) => {
     const totalPotentialSavings = getTotalPotentialSavings()
@@ -40,19 +48,15 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
   }
 
   const toggleSuggestion = (suggestionId) => {
-    const newSelected = new Set(selectedSuggestions)
-    if (newSelected.has(suggestionId)) {
-      newSelected.delete(suggestionId)
-    } else {
-      newSelected.add(suggestionId)
+    if (toggleSpendingCut) {
+      toggleSpendingCut(suggestionId)
     }
-    setSelectedSuggestions(newSelected)
   }
 
   const getTotalPotentialSavings = () => {
     let total = 0
     cutbackSuggestions.forEach((suggestion, index) => {
-      if (selectedSuggestions.has(`cutback-${index}`)) {
+      if (selectedSpendingCuts.has(`cutback-${index}`)) {
         total += suggestion.potentialSavings
       }
     })
@@ -76,7 +80,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
             <div className="text-xs sm:text-sm text-slate-500">
               {savingsCapacity?.savingsRate?.toFixed(1) || 0}% of income
             </div>
-            {getTotalPotentialSavings() > 0 && (
+            {selectedSpendingCuts.size > 0 && (
               <div className="text-xs text-green-400 mt-1">
                 +€{getTotalPotentialSavings().toFixed(2)} from cuts
               </div>
@@ -89,7 +93,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
               €{savingsAmount?.available?.toFixed(2) || '0.00'}
             </div>
             <div className="text-xs sm:text-sm text-slate-500">After current goals</div>
-            {getTotalPotentialSavings() > 0 && (
+            {selectedSpendingCuts.size > 0 && (
               <div className="text-xs text-blue-400 mt-1">
                 Includes selected cuts
               </div>
@@ -115,7 +119,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
               €{savingsAmount?.conservative?.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
-              {getTotalPotentialSavings() > 0 
+              {selectedSpendingCuts.size > 0 
                 ? 'Safe amount including selected spending cuts' 
                 : 'Safe amount to save without lifestyle changes'}
             </p>
@@ -130,7 +134,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
               €{savingsAmount?.aggressive?.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
-              {getTotalPotentialSavings() > 0 
+              {selectedSpendingCuts.size > 0 
                 ? 'Maximum potential with selected spending cuts' 
                 : 'Maximum recommended with minor adjustments'}
             </p>
@@ -153,7 +157,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
             <div 
               key={index}
               className={`bg-slate-700/50 rounded-lg p-3 sm:p-4 border-2 transition-all cursor-pointer ${
-                selectedSuggestions.has(`cutback-${index}`) 
+                selectedSpendingCuts.has(`cutback-${index}`) 
                   ? 'border-green-400 bg-green-400/10' 
                   : 'border-slate-600 hover:border-slate-500'
               }`}
@@ -208,9 +212,9 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-xl sm:text-2xl font-bold text-slate-200">Savings Recommendations</h2>
-        {selectedSuggestions.size > 0 && (
+        {selectedSpendingCuts.size > 0 && (
           <div className="bg-green-400/20 text-green-400 px-3 sm:px-4 py-2 rounded-lg border border-green-400/30 text-sm">
-            <span className="font-medium">
+            <span className="font-medium whitespace-nowrap">
               Selected savings: +€{getTotalPotentialSavings().toFixed(2)}/month
             </span>
           </div>
