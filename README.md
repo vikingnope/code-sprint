@@ -28,7 +28,7 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 ### C1 Browser Extension
 
-- [ ] C1.1 A browser extension (for Chrome-based, Gecko-based or WebKit-based browsers). This extension should provide alerts when new transactions are recorded. Notifications can be triggered manually for the purposes of this prototype.
+- [x] C1.1 A browser extension (for Chrome-based, Gecko-based or WebKit-based browsers). This extension should provide alerts when new transactions are recorded. Notifications can be triggered manually for the purposes of this prototype.
 
 ### C2 WhatsApp Integration
 
