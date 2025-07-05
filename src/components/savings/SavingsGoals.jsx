@@ -163,6 +163,20 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
     setRemoveAmountValue('')
   }
 
+  const handleEditGoal = () => {
+    if (editingGoal.name && editingGoal.targetAmount && editingGoal.monthlyAmount) {
+      updateGoal(editingGoal.id, {
+        name: editingGoal.name,
+        targetAmount: parseFloat(editingGoal.targetAmount),
+        monthlyAmount: parseFloat(editingGoal.monthlyAmount),
+        targetDate: editingGoal.targetDate,
+        category: editingGoal.category,
+        description: editingGoal.description || ''
+      })
+      setEditingGoal(null)
+    }
+  }
+
   const addGoalForm = showAddGoal ? (
     <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-700">
       <h3 className="text-lg font-semibold text-slate-200 mb-4">Add New Savings Goal</h3>
@@ -390,6 +404,105 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
     </div>
   ) : null
 
+  const editGoalModal = editingGoal ? (
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999] min-h-screen w-full">
+      <div className="bg-slate-800/95 backdrop-blur-md rounded-lg p-6 border border-slate-700 max-w-lg w-full mx-4 shadow-2xl">
+        <h3 className="text-lg font-semibold text-slate-200 mb-4">
+          Edit Goal: {editingGoal.name}
+        </h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Goal Name</label>
+            <input
+              type="text"
+              value={editingGoal.name}
+              onChange={(e) => setEditingGoal({...editingGoal, name: e.target.value})}
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200"
+              placeholder="e.g., Emergency Fund"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Target Amount</label>
+              <input
+                type="number"
+                value={editingGoal.targetAmount}
+                onChange={(e) => setEditingGoal({...editingGoal, targetAmount: e.target.value})}
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200"
+                placeholder="5000"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Monthly Amount</label>
+              <input
+                type="number"
+                value={editingGoal.monthlyAmount}
+                onChange={(e) => setEditingGoal({...editingGoal, monthlyAmount: e.target.value})}
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200"
+                placeholder="500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Category</label>
+              <select
+                value={editingGoal.category}
+                onChange={(e) => setEditingGoal({...editingGoal, category: e.target.value})}
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200"
+              >
+                {goalCategories.map(cat => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.icon} {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Target Date (Optional)</label>
+              <input
+                type="date"
+                value={editingGoal.targetDate}
+                onChange={(e) => setEditingGoal({...editingGoal, targetDate: e.target.value})}
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Description (Optional)</label>
+            <textarea
+              value={editingGoal.description || ''}
+              onChange={(e) => setEditingGoal({...editingGoal, description: e.target.value})}
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200"
+              rows={2}
+              placeholder="Add any additional details about your goal..."
+            />
+          </div>
+
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={() => setEditingGoal(null)}
+              className="px-4 py-2 text-slate-400 hover:text-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEditGoal}
+              disabled={!editingGoal.name || !editingGoal.targetAmount || !editingGoal.monthlyAmount}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -405,9 +518,13 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
 
       {addGoalForm}
 
+      {editGoalModal}
+
       {addAmountModal}
 
       {removeAmountModal}
+
+      {editGoalModal}
 
       {goals.length === 0 && !showAddGoal && (
         <div className="text-center py-12">
