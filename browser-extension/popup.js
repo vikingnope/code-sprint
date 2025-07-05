@@ -25,14 +25,22 @@ class SpendyPopup {
 
   async checkNotificationPermissions() {
     try {
-      chrome.notifications.getPermissionLevel((level) => {
-        console.log('Notification permission level:', level);
-        if (level !== 'granted') {
-          this.addNotification('Permissions Needed', 'Click "Simulate New Transaction" to enable notifications', 'warning');
-        }
-      });
+      // Try Chrome's getPermissionLevel API
+      if (chrome.notifications && chrome.notifications.getPermissionLevel) {
+        chrome.notifications.getPermissionLevel((level) => {
+          console.log('Notification permission level:', level);
+          if (level !== 'granted') {
+            this.addNotification('Permissions Needed', 'Click "Simulate New Transaction" to enable notifications', 'warning');
+          }
+        });
+      } else {
+        console.log('Firefox/Zen detected - notification permissions will be checked when needed');
+        this.addNotification('Firefox/Zen Detected', 'Notifications will be enabled when you test the extension', 'info');
+      }
     } catch (error) {
       console.error('Failed to check notification permissions:', error);
+      console.log('Firefox/Zen detected - notification permissions will be checked when needed');
+      this.addNotification('Firefox/Zen Detected', 'Notifications will be enabled when you test the extension', 'info');
     }
   }
 
@@ -167,41 +175,55 @@ class SpendyPopup {
     return new Promise((resolve) => {
       console.log('Popup: Checking notification permission...');
       
-      chrome.notifications.getPermissionLevel((level) => {
-        console.log('Popup: Current notification permission level:', level);
-        
-        if (level === 'granted') {
-          console.log('Popup: Permission already granted');
-          resolve(true);
-        } else {
-          console.log('Popup: Requesting notification permission...');
-          
-          // Try to create a permission request notification
-          chrome.notifications.create('permission-request', {
-            type: 'basic',
-            iconUrl: 'icons/spendy48.png',
-            title: 'Enable Spendy Notifications',
-            message: 'Click Allow to receive financial alerts'
-          }, (notificationId) => {
-            if (chrome.runtime.lastError) {
-              console.error('Popup: Permission request failed:', chrome.runtime.lastError);
-              // Try alternative approach - request via background script
-              chrome.runtime.sendMessage({
-                action: 'REQUEST_PERMISSION'
-              }, (response) => {
-                resolve(response?.success || false);
-              });
-            } else {
-              console.log('Popup: Permission request notification created:', notificationId);
-              // Clear the permission request notification
-              setTimeout(() => {
-                chrome.notifications.clear('permission-request');
-              }, 3000);
+      // Try Chrome's getPermissionLevel API first
+      try {
+        if (chrome.notifications && chrome.notifications.getPermissionLevel) {
+          chrome.notifications.getPermissionLevel((level) => {
+            console.log('Popup: Current notification permission level:', level);
+            
+            if (level === 'granted') {
+              console.log('Popup: Permission already granted');
               resolve(true);
+            } else {
+              console.log('Popup: Requesting notification permission...');
+              this.createPermissionRequestNotification(resolve);
             }
           });
+        } else {
+          throw new Error('getPermissionLevel not supported');
         }
-      });
+      } catch (error) {
+        // Firefox-based browsers (including Zen) - getPermissionLevel doesn't exist
+        console.log('Popup: Firefox/Zen detected, attempting direct notification creation...');
+        this.createPermissionRequestNotification(resolve);
+      }
+    });
+  }
+
+  createPermissionRequestNotification(resolve) {
+    // Try to create a permission request notification
+    chrome.notifications.create('permission-request', {
+      type: 'basic',
+      iconUrl: 'icons/spendy48.png',
+      title: 'Enable Spendy Notifications',
+      message: 'Click Allow to receive financial alerts'
+    }, (notificationId) => {
+      if (chrome.runtime.lastError) {
+        console.error('Popup: Permission request failed:', chrome.runtime.lastError);
+        // Try alternative approach - request via background script
+        chrome.runtime.sendMessage({
+          action: 'REQUEST_PERMISSION'
+        }, (response) => {
+          resolve(response?.success || false);
+        });
+      } else {
+        console.log('Popup: Permission request notification created:', notificationId);
+        // Clear the permission request notification
+        setTimeout(() => {
+          chrome.notifications.clear('permission-request');
+        }, 3000);
+        resolve(true);
+      }
     });
   }
 

@@ -59,6 +59,8 @@ A browser extension that provides real-time notifications for financial transact
    - Navigate to the `browser-extension` folder
    - Select the `manifest.json` file
 
+**Note for Firefox/Zen Browser**: The extension uses a hybrid manifest that supports both Chrome's Manifest V3 and Firefox's requirements. If you encounter issues, try refreshing the extension or reloading the page.
+
 ## Usage
 
 ### Basic Usage
@@ -72,9 +74,7 @@ A browser extension that provides real-time notifications for financial transact
    - The popup will show connection status and controls
 
 3. **Test Notifications**
-   - Click "Send Sample Alert" to test the notification system
    - Click "Simulate New Transaction" to trigger a transaction alert with realistic amounts
-   - Click "Simple Test Notification" for basic notification testing
    - **You should see browser notifications pop up** from your OS notification area
 
 4. **Enable Notifications (Important!)**
@@ -84,12 +84,10 @@ A browser extension that provides real-time notifications for financial transact
 
 ### Manual Testing
 
-The extension provides several ways to test notifications:
+The extension provides a way to test notifications:
 
-1. **Sample Alerts**: Sends pre-defined alert types (budget exceeded, unusual spending, category spikes)
-2. **Transaction Simulation**: Creates realistic transactions (€150-€349) with proper alert triggering
-3. **Simple Test**: Direct notification test that bypasses all logic for debugging
-4. **Automatic Monitoring**: Detects changes in the dashboard automatically
+1. **Transaction Simulation**: Creates realistic transactions (€150-€349) with proper alert triggering
+2. **Automatic Monitoring**: Detects changes in the dashboard automatically
 
 ### Notification Types
 
@@ -126,26 +124,22 @@ You can modify the extension by editing:
 
 If notifications work sometimes but not consistently:
 
-1. **Use the Simple Test Button**
-   - Click "Simple Test Notification" - this bypasses the background script
-   - If this works but "Send Sample Alert" doesn't, it's a permission or background script issue
-
-2. **Check Browser Console**
+1. **Check Browser Console**
    - Open Developer Tools (F12) → Console tab
    - Click the notification buttons and watch for error messages
    - Look for "Spendy Extension:" log messages
 
-3. **Reload the Extension**
+2. **Reload the Extension**
    - Go to `chrome://extensions/`
    - Click the refresh icon on the Spendy extension
    - Try the buttons again
 
-4. **Check Extension Service Worker**
+3. **Check Extension Service Worker**
    - In `chrome://extensions/`, click "Inspect views: service worker"
    - This opens the background script console
    - Try notification buttons and check for errors
 
-5. **Clear Notification History**
+4. **Clear Notification History**
    - Some browsers limit notification frequency
    - Clear your notification history and try again
    - Restart the browser if needed
@@ -175,7 +169,7 @@ If the extension shows "Dashboard Disconnected" even when you're on the Spendy d
 5. **Manual Detection Test**
    - Open the extension popup
    - Check if the connection status updates after a few seconds
-   - Try clicking the "Send Sample Alert" button to test functionality
+   - Try clicking the "Simulate New Transaction" button to test functionality
 
 ### Extension Not Working
 
@@ -197,7 +191,7 @@ If you're not seeing **pop-up notifications** from your browser/OS:
 
 1. **First Time Setup - Request Permissions**
    - Click the extension icon in your browser toolbar
-   - Click "Send Sample Alert" button
+   - Click "Simulate New Transaction" button
    - **This will trigger the permission request**
    - Look for a notification permission prompt from your browser
    - Click "Allow" when prompted
@@ -206,7 +200,7 @@ If you're not seeing **pop-up notifications** from your browser/OS:
    - Go to `chrome://settings/content/notifications`
    - Look for "localhost:5173" or your site in the blocked list
    - If found, click the trash icon to remove it
-   - Try the "Send Sample Alert" button again
+   - Try the "Simulate New Transaction" button again
 
 3. **Manual Permission Check**
    - Right-click the extension icon → "Manage extensions"
@@ -221,7 +215,7 @@ If you're not seeing **pop-up notifications** from your browser/OS:
    - Refresh the page and try the extension again
 
 5. **Test Notifications**
-   - Click the extension icon and use "Send Sample Alert"
+   - Click the extension icon and use "Simulate New Transaction"
    - You should see a **system notification** pop up, not just text in the popup
    - Check the browser console for any error messages
 
@@ -268,7 +262,8 @@ browser-extension/
 - **Chrome**: Full support (Manifest V3)
 - **Edge**: Full support (Chromium-based)
 - **Brave**: Full support (Chromium-based)
-- **Firefox**: Partial support (may need manifest adjustments)
+- **Firefox**: Full support (hybrid manifest)
+- **Zen Browser**: Full support (Firefox-based, uses hybrid manifest)
 - **Safari**: Not supported (different extension system)
 
 ## Privacy & Security

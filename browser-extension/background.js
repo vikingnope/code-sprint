@@ -213,11 +213,17 @@ class SpendyExtensionBackground {
       type: 'basic',
       iconUrl: 'icons/spendy48.png',
       title: alert.title || 'Spendy Alert',
-      message: alert.message || 'Financial notification',
-      priority: this.getSeverityPriority(alert.severity),
-      requireInteraction: alert.severity === 'CRITICAL',
-      silent: false
+      message: alert.message || 'Financial notification'
     };
+
+    // Add Chrome-specific properties only if supported
+    if (chrome.notifications && chrome.notifications.getPermissionLevel) {
+      // Chrome-based browsers support these properties
+      notificationOptions.priority = this.getSeverityPriority(alert.severity);
+      notificationOptions.requireInteraction = alert.severity === 'CRITICAL';
+      notificationOptions.silent = false;
+    }
+    // Firefox/Zen browsers don't support priority, requireInteraction, or silent properties
 
     try {
       console.log('Spendy Extension: Creating notification with options:', notificationOptions);
@@ -246,10 +252,21 @@ class SpendyExtensionBackground {
 
   async checkNotificationPermission() {
     return new Promise((resolve) => {
-      chrome.notifications.getPermissionLevel((level) => {
-        console.log('Spendy Extension: Current permission level:', level);
-        resolve(level === 'granted');
-      });
+      try {
+        if (chrome.notifications && chrome.notifications.getPermissionLevel) {
+          chrome.notifications.getPermissionLevel((level) => {
+            console.log('Spendy Extension: Current permission level:', level);
+            resolve(level === 'granted');
+          });
+        } else {
+          // Firefox/Zen - assume permissions are needed and will be requested when creating notification
+          console.log('Spendy Extension: Firefox/Zen detected - will request permissions when needed');
+          resolve(true); // Assume true, will fail gracefully if permissions not granted
+        }
+      } catch (error) {
+        console.log('Spendy Extension: getPermissionLevel not supported, assuming Firefox/Zen');
+        resolve(true); // Assume true, will fail gracefully if permissions not granted
+      }
     });
   }
 
@@ -383,12 +400,37 @@ class SpendyExtensionBackground {
 
   async requestNotificationPermission() {
     return new Promise((resolve) => {
-      chrome.notifications.getPermissionLevel((level) => {
-        console.log('Current notification permission level:', level);
-        if (level === 'granted') {
-          resolve(true);
+      try {
+        if (chrome.notifications && chrome.notifications.getPermissionLevel) {
+          chrome.notifications.getPermissionLevel((level) => {
+            console.log('Current notification permission level:', level);
+            if (level === 'granted') {
+              resolve(true);
+            } else {
+              // Try to create a test notification to trigger permission request
+              chrome.notifications.create('test-permission', {
+                type: 'basic',
+                iconUrl: 'icons/spendy48.png',
+                title: 'Spendy Extension Ready',
+                message: 'Notifications are now enabled!'
+              }, (notificationId) => {
+                if (chrome.runtime.lastError) {
+                  console.error('Permission request failed:', chrome.runtime.lastError);
+                  resolve(false);
+                } else {
+                  console.log('Permission request notification created:', notificationId);
+                  // Clear the test notification after a short delay
+                  setTimeout(() => {
+                    chrome.notifications.clear('test-permission');
+                  }, 2000);
+                  resolve(true);
+                }
+              });
+            }
+          });
         } else {
-          // Try to create a test notification to trigger permission request
+          // Firefox/Zen - create a test notification to trigger permission request
+          console.log('Firefox/Zen detected - creating test notification to request permissions');
           chrome.notifications.create('test-permission', {
             type: 'basic',
             iconUrl: 'icons/spendy48.png',
@@ -399,16 +441,19 @@ class SpendyExtensionBackground {
               console.error('Permission request failed:', chrome.runtime.lastError);
               resolve(false);
             } else {
-              console.log('Permission granted via test notification');
-              // Clear the test notification after a few seconds
+              console.log('Permission request notification created:', notificationId);
+              // Clear the test notification after a short delay
               setTimeout(() => {
                 chrome.notifications.clear('test-permission');
-              }, 3000);
+              }, 2000);
               resolve(true);
             }
           });
         }
-      });
+      } catch (error) {
+        console.error('Error requesting notification permission:', error);
+        resolve(false);
+      }
     });
   }
 
