@@ -24,7 +24,7 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 ### S2 Natural-Language Assistant
 
-- [ ] S2.1 Use a chatbot (or any other natural-language interface) for user interaction, allowing the user to ask questions about their spending patterns and data.
+- [x] S2.1 Use a chatbot (or any other natural-language interface) for user interaction, allowing the user to ask questions about their spending patterns and data. (TODO: Reduce file lines if possible)
 
 ### C1 Browser Extension
 
