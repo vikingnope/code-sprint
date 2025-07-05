@@ -1,18 +1,16 @@
 import { Routes, Route } from 'react-router-dom'
 import Navigation from '@components/Navigation'
 import Home from '@pages/Home'
-import About from '@pages/About'
-import Contact from '@pages/Contact'
+import Dashboard from '@pages/Dashboard'
 
 function App() {
   return (
-    <div className="App">
+    <div className="App min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <Navigation />
-      <main className="p-8">
+      <main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
     </div>
