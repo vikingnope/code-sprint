@@ -20,7 +20,7 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 ### S1 Intelligent Alerts
 
-- [x] S1.1 A basic rule engine to simulate alerts (e.g “You’ve spent 80% of your good budget this month!”).
+- [x] S1.1 A basic rule engine to simulate alerts (e.g “You’ve spent 80% of your good budget this month!”). (TODO: Fix mobile settings view)
 
 ### S2 Natural-Language Assistant
 
