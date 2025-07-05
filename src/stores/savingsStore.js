@@ -48,6 +48,17 @@ const useSavingsStore = create(
         }))
       },
       
+      // Remove amount from a goal
+      removeAmountFromGoal: (goalId, amount) => {
+        set((state) => ({
+          goals: state.goals.map(goal => 
+            goal.id === goalId 
+              ? { ...goal, currentAmount: Math.max(0, (goal.currentAmount || 0) - amount) }
+              : goal
+          )
+        }))
+      },
+      
       // Get a specific goal
       getGoal: (goalId) => {
         return get().goals.find(goal => goal.id === goalId)

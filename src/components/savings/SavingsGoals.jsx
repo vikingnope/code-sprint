@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FaPlus, FaTrash, FaEdit, FaBullseye  } from 'react-icons/fa'
+import { FaPlus, FaTrash, FaEdit, FaBullseye, FaMinus } from 'react-icons/fa'
 import { calculateGoalProgress } from '@/utils/savingsEngine'
 import useSavingsStore from '@/stores/savingsStore'
 
@@ -14,7 +14,7 @@ const goalCategories = [
   { value: 'general', label: 'General', icon: '💰' }
 ]
 
-const GoalCard = ({ goal, monthlyData, updateGoal, deleteGoal, setEditingGoal }) => {
+const GoalCard = ({ goal, monthlyData, updateGoal, deleteGoal, setEditingGoal, openAddAmountModal, openRemoveAmountModal }) => {
   const progress = calculateGoalProgress(goal, monthlyData)
   const category = goalCategories.find(c => c.value === goal.category)
 
@@ -78,15 +78,16 @@ const GoalCard = ({ goal, monthlyData, updateGoal, deleteGoal, setEditingGoal })
             )}
           </div>
           <div className="flex items-center space-x-2">
+                        <button
+              onClick={() => openRemoveAmountModal(goal)}
+              className="text-white py-1 rounded text-sm"
+              disabled={!goal.currentAmount || goal.currentAmount <= 0}
+            >
+              Remove €
+            </button>
             <button
-              onClick={() => {
-                const amount = prompt('Add amount to goal:', '0')
-                if (amount && !isNaN(parseFloat(amount))) {
-                  const { addAmountToGoal } = useSavingsStore.getState()
-                  addAmountToGoal(goal.id, parseFloat(amount))
-                }
-              }}
-              className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+              onClick={() => openAddAmountModal(goal)}
+              className=" text-white py-1 rounded text-sm "
             >
               Add €
             </button>
@@ -101,6 +102,11 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
   const { goals, addGoal: addGoalToStore, updateGoal, deleteGoal } = useSavingsStore()
   const [showAddGoal, setShowAddGoal] = useState(false)
   const [editingGoal, setEditingGoal] = useState(null)
+  const [showAddAmountModal, setShowAddAmountModal] = useState(false)
+  const [showRemoveAmountModal, setShowRemoveAmountModal] = useState(false)
+  const [selectedGoal, setSelectedGoal] = useState(null)
+  const [addAmountValue, setAddAmountValue] = useState('')
+  const [removeAmountValue, setRemoveAmountValue] = useState('')
   const [newGoal, setNewGoal] = useState({
     name: '',
     targetAmount: '',
@@ -123,6 +129,38 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
       })
       setShowAddGoal(false)
     }
+  }
+
+  const handleAddAmount = () => {
+    if (addAmountValue && !isNaN(parseFloat(addAmountValue)) && parseFloat(addAmountValue) > 0) {
+      const { addAmountToGoal } = useSavingsStore.getState()
+      addAmountToGoal(selectedGoal.id, parseFloat(addAmountValue))
+      setShowAddAmountModal(false)
+      setAddAmountValue('')
+      setSelectedGoal(null)
+    }
+  }
+
+  const openAddAmountModal = (goal) => {
+    setSelectedGoal(goal)
+    setShowAddAmountModal(true)
+    setAddAmountValue('')
+  }
+
+  const handleRemoveAmount = () => {
+    if (removeAmountValue && !isNaN(parseFloat(removeAmountValue)) && parseFloat(removeAmountValue) > 0) {
+      const { removeAmountFromGoal } = useSavingsStore.getState()
+      removeAmountFromGoal(selectedGoal.id, parseFloat(removeAmountValue))
+      setShowRemoveAmountModal(false)
+      setRemoveAmountValue('')
+      setSelectedGoal(null)
+    }
+  }
+
+  const openRemoveAmountModal = (goal) => {
+    setSelectedGoal(goal)
+    setShowRemoveAmountModal(true)
+    setRemoveAmountValue('')
   }
 
   const addGoalForm = showAddGoal ? (
@@ -219,6 +257,139 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
     </div>
   ) : null
 
+  const addAmountModal = showAddAmountModal ? (
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999] min-h-screen w-full">
+      <div className="bg-slate-800/95 backdrop-blur-md rounded-lg p-6 border border-slate-700 max-w-md w-full mx-4 shadow-2xl">
+        <h3 className="text-lg font-semibold text-slate-200 mb-4">
+          Add Money to {selectedGoal?.name}
+        </h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Amount to Add
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-2 text-slate-400">€</span>
+              <input
+                type="number"
+                value={addAmountValue}
+                onChange={(e) => setAddAmountValue(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-slate-200"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {selectedGoal && (
+            <div className="bg-slate-700/50 rounded-md p-3 text-sm">
+              <div className="flex justify-between text-slate-400">
+                <span>Current progress:</span>
+                <span>€{selectedGoal.currentAmount?.toFixed(2) || '0.00'} / €{selectedGoal.targetAmount.toFixed(2)}</span>
+              </div>
+              {addAmountValue && !isNaN(parseFloat(addAmountValue)) && (
+                <div className="flex justify-between text-green-400 mt-1">
+                  <span>After adding:</span>
+                  <span>€{((selectedGoal.currentAmount || 0) + parseFloat(addAmountValue)).toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={() => {
+                setShowAddAmountModal(false)
+                setAddAmountValue('')
+                setSelectedGoal(null)
+              }}
+              className="px-4 py-2 text-slate-400 hover:text-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAddAmount}
+              disabled={!addAmountValue || isNaN(parseFloat(addAmountValue)) || parseFloat(addAmountValue) <= 0}
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Add Amount
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null
+
+  const removeAmountModal = showRemoveAmountModal ? (
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999] min-h-screen w-full">
+      <div className="bg-slate-800/95 backdrop-blur-md rounded-lg p-6 border border-slate-700 max-w-md w-full mx-4 shadow-2xl">
+        <h3 className="text-lg font-semibold text-slate-200 mb-4">
+          Remove Money from {selectedGoal?.name}
+        </h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Amount to Remove
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-2 text-slate-400">€</span>
+              <input
+                type="number"
+                value={removeAmountValue}
+                onChange={(e) => setRemoveAmountValue(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 text-slate-200"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                max={selectedGoal?.currentAmount || 0}
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {selectedGoal && (
+            <div className="bg-slate-700/50 rounded-md p-3 text-sm">
+              <div className="flex justify-between text-slate-400">
+                <span>Current progress:</span>
+                <span>€{selectedGoal.currentAmount?.toFixed(2) || '0.00'} / €{selectedGoal.targetAmount.toFixed(2)}</span>
+              </div>
+              {removeAmountValue && !isNaN(parseFloat(removeAmountValue)) && parseFloat(removeAmountValue) > 0 && (
+                <div className="flex justify-between text-red-400 mt-1">
+                  <span>After removing:</span>
+                  <span>€{Math.max(0, (selectedGoal.currentAmount || 0) - parseFloat(removeAmountValue)).toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={() => {
+                setShowRemoveAmountModal(false)
+                setRemoveAmountValue('')
+                setSelectedGoal(null)
+              }}
+              className="px-4 py-2 text-slate-400 hover:text-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleRemoveAmount}
+              disabled={!removeAmountValue || isNaN(parseFloat(removeAmountValue)) || parseFloat(removeAmountValue) <= 0 || parseFloat(removeAmountValue) > (selectedGoal?.currentAmount || 0)}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Remove Amount
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -233,6 +404,10 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
       </div>
 
       {addGoalForm}
+
+      {addAmountModal}
+
+      {removeAmountModal}
 
       {goals.length === 0 && !showAddGoal && (
         <div className="text-center py-12">
@@ -257,6 +432,8 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
             updateGoal={updateGoal}
             deleteGoal={deleteGoal}
             setEditingGoal={setEditingGoal}
+            openAddAmountModal={openAddAmountModal}
+            openRemoveAmountModal={openRemoveAmountModal}
           />
         ))}
       </div>

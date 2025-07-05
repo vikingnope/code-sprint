@@ -4,14 +4,15 @@ import { calculateSavingsCapacity } from '@/utils/savingsEngine'
 import SavingsGoals from '@/components/savings/SavingsGoals'
 import SavingsRecommendations from '@/components/savings/SavingsRecommendations'
 import SpendyBuddy from '@/components/chatbot/SpendyBuddy'
+import useSavingsStore from '@/stores/savingsStore'
 import csvData from '@assets/codesprint_open_2025_sample_data.csv?raw'
 
 const Savings = () => {
   const [transactions, setTransactions] = useState([])
   const [monthlyData, setMonthlyData] = useState({})
   const [savingsCapacity, setSavingsCapacity] = useState({})
-  const [currentGoals, setCurrentGoals] = useState([])
   const [loading, setLoading] = useState(true)
+  const { goals: currentGoals } = useSavingsStore()
   useEffect(() => {
     try {
       const parsedData = parseCsvData(csvData)
@@ -37,13 +38,6 @@ const Savings = () => {
     } catch (error) {
       console.error('Error parsing CSV data:', error)
       setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    const savedGoals = localStorage.getItem('savingsGoals')
-    if (savedGoals) {
-      setCurrentGoals(JSON.parse(savedGoals))
     }
   }, [])
 
