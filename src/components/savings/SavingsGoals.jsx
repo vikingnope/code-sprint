@@ -157,7 +157,7 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
     )
   }
 
-  const AddGoalForm = () => (
+  const addGoalForm = showAddGoal ? (
     <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-700">
       <h3 className="text-lg font-semibold text-slate-200 mb-4">Add New Savings Goal</h3>
       
@@ -249,7 +249,7 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
         </div>
       </div>
     </div>
-  )
+  ) : null
 
   return (
     <div className="space-y-6">
@@ -264,7 +264,7 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
         </button>
       </div>
 
-      {showAddGoal && <AddGoalForm />}
+      {addGoalForm}
 
       {goals.length === 0 && !showAddGoal && (
         <div className="text-center py-12">
