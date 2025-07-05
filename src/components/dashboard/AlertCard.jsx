@@ -166,24 +166,6 @@ const AlertCard = ({ monthlyData, transactions, maxAlerts = 3 }) => {
         ))}
       </div>
 
-      {/* WhatsApp Notification Link */}
-      {visibleAlerts.length > 0 && (
-        <div className="mt-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <FaWhatsapp className="text-green-400 mr-2" />
-              <span className="text-sm text-green-300">Get alerts on WhatsApp</span>
-            </div>
-            <Link 
-              to="/whatsapp" 
-              className="text-green-400 hover:text-green-300 text-sm font-medium underline"
-            >
-              Setup notifications
-            </Link>
-          </div>
-        </div>
-      )}
-
       {showSettings && (
         <AlertSettings onClose={handleSettingsClose} />
       )}
