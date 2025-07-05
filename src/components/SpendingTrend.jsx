@@ -17,7 +17,7 @@ const SpendingTrend = ({ monthlyData }) => {
           <XAxis dataKey="month" tick={{ fill: '#9ca3af' }} />
           <YAxis tick={{ fill: '#9ca3af' }} />
           <Tooltip 
-            formatter={(value) => [`€${value.toLocaleString()}`, '']} 
+            formatter={(value, name) => [`€${value.toLocaleString()}`, name]} 
             contentStyle={{ 
               backgroundColor: '#1e293b', 
               border: '1px solid #374151', 
@@ -25,6 +25,7 @@ const SpendingTrend = ({ monthlyData }) => {
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
               color: '#f1f5f9'
             }}
+            animationDuration={300}
           />
           <Line 
             type="monotone" 
