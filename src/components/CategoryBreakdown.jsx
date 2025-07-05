@@ -63,6 +63,7 @@ const CategoryBreakdown = ({ monthlyData, selectedMonth, setSelectedMonth }) => 
                   itemStyle={{
                     color: '#ffffff'
                   }}
+                  animationDuration={300}
                 />
               </PieChart>
             </ResponsiveContainer>
