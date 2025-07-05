@@ -59,50 +59,52 @@ const Savings = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">Savings Center</h1>
-          <p className="text-slate-300">
-            Set savings goals and get personalized recommendations to reach them faster
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="mb-4 sm:mb-6 lg:mb-8">
+          <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-1 sm:mb-2">
+            Savings Center
+          </h1>
+          <p className="text-xs sm:text-sm lg:text-base text-slate-300 leading-relaxed">
+            Set goals and get recommendations to save more
           </p>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-slate-700">
-            <div className="text-sm text-slate-400">Current Monthly Savings</div>
-            <div className="text-2xl font-bold text-green-400">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6 lg:mb-8">
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-700">
+            <div className="text-xs sm:text-sm text-slate-400 mb-2">Current Monthly Savings</div>
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-400 mb-2">
               ${savingsCapacity?.avgSavings?.toFixed(2) || '0.00'}
             </div>
-            <div className="text-sm text-slate-500">
+            <div className="text-xs sm:text-sm text-slate-500">
               {savingsCapacity?.savingsRate?.toFixed(1) || 0}% of income
             </div>
           </div>
           
-          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-slate-700">
-            <div className="text-sm text-slate-400">Active Goals</div>
-            <div className="text-2xl font-bold text-blue-400">
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-700">
+            <div className="text-xs sm:text-sm text-slate-400 mb-2">Active Goals</div>
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-400 mb-2">
               {currentGoals.length}
             </div>
-            <div className="text-sm text-slate-500">
-              Total target: ${currentGoals.reduce((sum, goal) => sum + goal.targetAmount, 0).toFixed(0)}
+            <div className="text-xs sm:text-sm text-slate-500">
+              Target: ${currentGoals.reduce((sum, goal) => sum + goal.targetAmount, 0).toFixed(0)}
             </div>
           </div>
           
-          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-slate-700">
-            <div className="text-sm text-slate-400">Monthly Goal Contributions</div>
-            <div className="text-2xl font-bold text-purple-400">
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-700">
+            <div className="text-xs sm:text-sm text-slate-400 mb-2">Monthly Contributions</div>
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-400 mb-2">
               ${currentGoals.reduce((sum, goal) => sum + goal.monthlyAmount, 0).toFixed(2)}
             </div>
-            <div className="text-sm text-slate-500">Committed</div>
+            <div className="text-xs sm:text-sm text-slate-500">Committed</div>
           </div>
           
-          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-slate-700">
-            <div className="text-sm text-slate-400">Savings Rate</div>
-            <div className="text-2xl font-bold text-indigo-400">
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-700">
+            <div className="text-xs sm:text-sm text-slate-400 mb-2">Savings Rate</div>
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-indigo-400 mb-2">
               {savingsCapacity?.savingsRate?.toFixed(1) || 0}%
             </div>
-            <div className="text-sm text-slate-500">
+            <div className="text-xs sm:text-sm text-slate-500">
               {savingsCapacity?.savingsRate > 20 ? 'Excellent' : 
                savingsCapacity?.savingsRate > 10 ? 'Good' : 'Needs improvement'}
             </div>
@@ -110,9 +112,9 @@ const Savings = () => {
         </div>
 
         {/* Main Content - Split Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Left Side - Savings Goals */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-1">
             <SavingsGoals 
               monthlyData={monthlyData} 
               savingsCapacity={savingsCapacity}
@@ -120,7 +122,7 @@ const Savings = () => {
           </div>
           
           {/* Right Side - Recommendations */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-2">
             <SavingsRecommendations 
               savingsCapacity={savingsCapacity}
               monthlyData={monthlyData}
