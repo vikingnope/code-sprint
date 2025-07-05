@@ -155,9 +155,9 @@ const AlertCard = ({ monthlyData, transactions, maxAlerts = 3 }) => {
               </div>
               <button
                 onClick={() => dismissAlert(alert.id)}
-                className="p-1 hover:bg-slate-700/50 rounded transition-colors ml-2 flex-shrink-0"
+                className="p-1 hover:bg-slate-700/50 rounded transition-colors ml-2 flex-shrink-0 group"
               >
-                <FaTimes className="text-slate-400 hover:text-white" size={10} />
+                <FaTimes className="text-slate-400 group-hover:text-white transition-colors" size={10} />
               </button>
             </div>
           </div>
