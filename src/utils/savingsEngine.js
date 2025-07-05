@@ -44,25 +44,27 @@ export const calculateSavingsCapacity = (monthlyData) => {
 export const suggestSavingsAmount = (savingsCapacity, currentGoals = []) => {
   const { avgIncome, avgExpenses, avgSavings } = savingsCapacity
   
-  // Conservative approach: suggest 10-20% of income or 50-70% of current surplus
-  const conservativeSuggestion = Math.min(
-    avgIncome * 0.1, // 10% of income
-    avgSavings * 0.5   // 50% of current surplus
-  )
-  
-  // Aggressive approach: suggest 20-30% of income or 80-90% of current surplus
-  const aggressiveSuggestion = Math.min(
-    avgIncome * 0.2, // 20% of income
-    avgSavings * 0.8   // 80% of current surplus
-  )
-
-  // Account for existing goals
+  // Account for existing goals first
   const existingGoalAmount = currentGoals.reduce((sum, goal) => sum + goal.monthlyAmount, 0)
   const availableForNewGoals = Math.max(0, avgSavings - existingGoalAmount)
+  
+  // Conservative approach: 25-35% of available surplus, capped at 10% of income
+  const conservativePercentage = 0.30 // 30% of available surplus
+  const conservativeSuggestion = Math.min(
+    availableForNewGoals * conservativePercentage,
+    avgIncome * 0.10 // Safety cap at 10% of income
+  )
+  
+  // Aggressive approach: 60-80% of available surplus, capped at 20% of income  
+  const aggressivePercentage = 0.70 // 70% of available surplus
+  const aggressiveSuggestion = Math.min(
+    availableForNewGoals * aggressivePercentage,
+    avgIncome * 0.20 // Safety cap at 20% of income
+  )
 
   return {
-    conservative: Math.max(0, Math.min(conservativeSuggestion, availableForNewGoals)),
-    aggressive: Math.max(0, Math.min(aggressiveSuggestion, availableForNewGoals)),
+    conservative: Math.max(0, conservativeSuggestion),
+    aggressive: Math.max(0, aggressiveSuggestion),
     available: availableForNewGoals,
     currentSavings: avgSavings
   }
