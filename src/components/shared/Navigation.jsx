@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { FaChartBar, FaWallet, FaPiggyBank, FaBars, FaTimes } from 'react-icons/fa'
+import { FaChartBar, FaWallet, FaPiggyBank, FaBars, FaTimes, FaWhatsapp } from 'react-icons/fa'
 import { useState } from 'react'
 
 const Navigation = () => {
@@ -20,7 +20,8 @@ const Navigation = () => {
 
   const navigationItems = [
     { path: '/', icon: FaChartBar, label: 'Dashboard' },
-    { path: '/savings', icon: FaPiggyBank, label: 'Savings' }
+    { path: '/savings', icon: FaPiggyBank, label: 'Savings' },
+    { path: '/whatsapp', icon: FaWhatsapp, label: 'WhatsApp' }
   ]
 
   const renderNavLink = (item, isMobile = false) => {

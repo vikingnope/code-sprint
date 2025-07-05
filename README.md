@@ -32,7 +32,7 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 ### C2 WhatsApp Integration
 
-- [ ] C2.1 Build a WhatsApp integration which sends push notifications to the user’s WhatsApp account. Notifications can be triggered manually for the purposes of this prototype.
+- [x] C2.1 Build a WhatsApp integration which sends push notifications to the user’s WhatsApp account. Notifications can be triggered manually for the purposes of this prototype.
 
 
 ## Getting Started
