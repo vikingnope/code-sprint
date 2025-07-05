@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spendy Extension Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-button { padding: 10px 20px; margin: 10px; background: #3B82F6; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Spendy Extension Test Page</h1>
+    <p>This page can be used to test the extension's content script functionality.</p>
+    
+    <button class="test-button" onclick="simulateTransaction()">Simulate Transaction</button>
+    <button class="test-button" onclick="simulateAlert()">Simulate Alert</button>
+    
+    <div id="results" class="result">
+        <h3>Test Results:</h3>
+        <div id="output">Click the buttons above to test the extension</div>
+    </div>
+
+    <script>
+        function simulateTransaction() {
+            // Create a fake transaction element
+            const transaction = document.createElement('div');
+            transaction.className = 'transaction-item';
+            transaction.innerHTML = '€45.67 - Test Restaurant Purchase';
+            document.body.appendChild(transaction);
+            
+            document.getElementById('output').innerHTML += '<br>✅ Simulated transaction added to DOM';
+        }
+
+        function simulateAlert() {
+            // Create a fake alert element
+            const alert = document.createElement('div');
+            alert.className = 'alert high';
+            alert.innerHTML = '<h4>Budget Alert</h4><p>Test alert message</p>';
+            document.body.appendChild(alert);
+            
+            document.getElementById('output').innerHTML += '<br>✅ Simulated alert added to DOM';
+        }
+    </script>
+</body>
+</html>
