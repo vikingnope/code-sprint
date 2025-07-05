@@ -73,11 +73,6 @@ const Dashboard = () => {
                 Your expense overview for the past 3 months
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-2 shadow-sm border border-slate-700">
-                <FaFilter className="text-slate-400" />
-              </div>
-            </div>
           </div>
         </div>
 
