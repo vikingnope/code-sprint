@@ -53,7 +53,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
   }
 
   const SavingsCapacityTab = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-slate-700">
         <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center">
           <FaChartLine className="mr-2 text-blue-400" />
@@ -120,7 +120,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
   )
 
   const CutbackSuggestionsTab = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-slate-700">
         <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center">
           <FaArrowTrendDown className="mr-2 text-orange-400" />
@@ -179,7 +179,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
   )
 
   const SmartSuggestionsTab = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-slate-700">
         <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center">
           <FaRobot className="mr-2 text-purple-400" />
