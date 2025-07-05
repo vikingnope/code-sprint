@@ -197,34 +197,71 @@ const Dashboard = () => {
               </select>
             </div>
             {categoryData.length > 0 && (
-              <ResponsiveContainer width="100%" height={350}>
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value) => [`€${value.toLocaleString()}`, 'Amount']} 
-                    contentStyle={{ 
-                      backgroundColor: '#1e293b', 
-                      border: '1px solid #374151', 
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
-                      color: '#f1f5f9'
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="space-y-8">
+                {/* Modern Pie Chart */}
+                <div className="flex justify-center">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <PieChart>
+                      <Pie
+                        data={categoryData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={false}
+                        outerRadius={140}
+                        innerRadius={60}
+                        fill="#8884d8"
+                        dataKey="value"
+                        stroke="#374151"
+                        strokeWidth={2}
+                      >
+                        {categoryData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value) => [`€${value.toLocaleString()}`, 'Amount']} 
+                        contentStyle={{ 
+                          backgroundColor: '#1e293b', 
+                          border: '1px solid #374151', 
+                          borderRadius: '12px',
+                          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+                          color: '#ffffff'
+                        }}
+                        labelStyle={{
+                          color: '#ffffff',
+                          fontWeight: 'bold'
+                        }}
+                        itemStyle={{
+                          color: '#ffffff'
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                {/* Modern Legend in 2-column grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {categoryData.map((entry, index) => {
+                    const percentage = ((entry.value / categoryData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1);
+                    return (
+                      <div key={entry.name} className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg border border-slate-600/50 hover:bg-slate-600/30 transition-colors">
+                        <div 
+                          className="w-5 h-5 rounded-full shadow-lg flex-shrink-0"
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        ></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-slate-200 font-medium text-sm truncate">{entry.name}</p>
+                          <p className="text-slate-400 text-xs">{percentage}%</p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-slate-200 font-bold text-sm">€{entry.value.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
 
