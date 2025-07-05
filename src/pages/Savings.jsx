@@ -112,17 +112,20 @@ const Savings = () => {
         </div>
 
         {/* Main Content - Split Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 relative">
           {/* Left Side - Savings Goals */}
-          <div className="space-y-4 sm:space-y-6 order-1">
+          <div className="space-y-4 sm:space-y-6 order-1 lg:pr-4">
             <SavingsGoals 
               monthlyData={monthlyData} 
               savingsCapacity={savingsCapacity}
             />
           </div>
           
+          {/* Desktop Divider */}
+          <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-slate-600 to-transparent transform -translate-x-1/2"></div>
+          
           {/* Right Side - Recommendations */}
-          <div className="space-y-4 sm:space-y-6 order-2">
+          <div className="space-y-4 sm:space-y-6 order-2 lg:pl-4">
             <SavingsRecommendations 
               savingsCapacity={savingsCapacity}
               monthlyData={monthlyData}
