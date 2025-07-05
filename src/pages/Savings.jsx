@@ -3,6 +3,7 @@ import { parseCsvData, getMonthlyData } from '@/utils/csvParser'
 import { calculateSavingsCapacity } from '@/utils/savingsEngine'
 import SavingsGoals from '@/components/savings/SavingsGoals'
 import SavingsRecommendations from '@/components/savings/SavingsRecommendations'
+import SpendyBuddy from '@/components/chatbot/SpendyBuddy'
 import csvData from '@assets/codesprint_open_2025_sample_data.csv?raw'
 
 const Savings = () => {
@@ -135,6 +136,9 @@ const Savings = () => {
           </div>
         </div>
       </div>
+      
+      {/* SpendyBuddy Chatbot */}
+      <SpendyBuddy transactions={transactions} monthlyData={monthlyData} />
     </div>
   )
 }
