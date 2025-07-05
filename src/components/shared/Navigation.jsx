@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { FaHome, FaChartBar, FaWallet } from 'react-icons/fa'
+import { FaHome, FaChartBar, FaWallet, FaPiggyBank } from 'react-icons/fa'
 
 const Navigation = () => {
   const location = useLocation()
@@ -41,6 +41,17 @@ const Navigation = () => {
               >
                 <FaChartBar />
                 Dashboard
+              </Link>
+              <Link 
+                to="/savings" 
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  isActive('/savings') 
+                    ? 'bg-slate-700 text-white shadow-lg ring-2 ring-blue-500/50' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                }`}
+              >
+                <FaPiggyBank />
+                Savings
               </Link>
             </div>
           </div>

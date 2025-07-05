@@ -1,42 +1,47 @@
-# Components Directory
+# Components Dire### 💰 Savings Components (`/savings/`)
 
-Quick overview of reusable React components for the Financial Dashboard.
+Components used in the savings center:ory
 
-## Components
+Quick overview of reusable React components for the Financial Dashboard, organized by feature.
 
-### 📊 CategoryBreakdown.jsx
+## Structure
 
-Interactive pie chart showing expense categories with month selector and legend.
+### 📊 Dashboard Components (`/dashboard/`)
 
-### 📈 MonthlyOverview.jsx
+Components used in the main dashboard view:
 
-Bar chart comparing monthly income vs expenses.
+- **CategoryBreakdown.jsx** - Interactive pie chart showing expense categories with month selector and legend
+- **ExpenseSummary.jsx** - Detailed expense analysis component with insights
+- **MonthlyOverview.jsx** - Bar chart comparing monthly income vs expenses
+- **RecentTransactions.jsx** - List of the 10 most recent financial transactions
+- **SpendingTrend.jsx** - Line chart showing spending trends over time
+- **SummaryCards.jsx** - Three summary cards displaying total income, expenses, and net balance
 
-### 💰 SummaryCards.jsx
+### � Savings Components (`/savings/`)
+Components used in the savings center:
 
-Three summary cards displaying total income, expenses, and net balance.
+- **SavingsGoals.jsx** - Savings goal management and tracking
+- **SavingsRecommendations.jsx** - Personalized savings recommendations and tips
 
-### 📋 RecentTransactions.jsx
+### 🧭 Shared Components (`/shared/`)
 
-List of the 10 most recent financial transactions.
+Components used across multiple pages:
 
-### 📉 SpendingTrend.jsx
-
-Line chart showing spending trends over time.
-
-### 📊 ExpenseSummary.jsx
-
-Detailed expense analysis component with insights.
-
-### 🧭 Navigation.jsx
-
-Application navigation component for routing between pages.
+- **Navigation.jsx** - Application navigation component for routing between pages
 
 ## Usage
 
 ```jsx
-import SummaryCards from '@/components/SummaryCards'
-import MonthlyOverview from '@/components/MonthlyOverview'
+// Dashboard components
+import SummaryCards from '@/components/dashboard/SummaryCards'
+import MonthlyOverview from '@/components/dashboard/MonthlyOverview'
+
+// Savings components  
+import SavingsGoals from '@/components/savings/SavingsGoals'
+import SavingsRecommendations from '@/components/savings/SavingsRecommendations'
+
+// Shared components
+import Navigation from '@/components/shared/Navigation'
 
 const Dashboard = () => {
   return (
