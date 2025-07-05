@@ -14,9 +14,26 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 ### M2 Savings Goal Engine
 
-- [ ] M2.1 Allow users to set one or more savings goals (e.g. vacation, emergency funds).
-- [ ] M2.2 Automatically suggest how much a user could save per month, based on their spending patterns.
-- [ ] M2.3 Provide a recommendation engine that suggest areas to cut back on (e.g. "Reducing your delivery food spend by 15% could save you €100/month")
+- [x] M2.1 Allow users to set one or more savings goals (e.g. vacation, emergency funds).
+- [x] M2.2 Automatically suggest how much a user could save per month, based on their spending patterns.
+- [x] M2.3 Provide a recommendation engine that suggest areas to cut back on (e.g. "Reducing your delivery food spend by 15% could save you €100/month")
+
+### S1 Intelligent Alerts
+
+- [ ] S1.1 A basic rule engine to simulate alerts (e.g “You’ve spent 80% of your good budget this month!”).
+
+### S2 Natural-Language Assistant
+
+- [ ] S2.1 Use a chatbot (or any other natural-language interface) for user interaction, allowing the user to ask questions about their spending patterns and data.
+
+### C1 Browser Extension
+
+- [ ] C1.1 A browser extension (for Chrome-based, Gecko-based or WebKit-based browsers). This extension should provide alerts when new transactions are recorded. Notifications can be triggered manually for the purposes of this prototype.
+
+### C2 WhatsApp Integration
+
+- [ ] C2.1 Build a WhatsApp integration which sends push notifications to the user’s WhatsApp account. Notifications can be triggered manually for the purposes of this prototype.
+
 
 ## Getting Started
 

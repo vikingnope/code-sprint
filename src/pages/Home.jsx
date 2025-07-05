@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FaChartLine, FaWallet, FaPiggyBank, FaArrowRight } from 'react-icons/fa'
+import { FaChartLine, FaWallet, FaPiggyBank, FaArrowRight, FaBullseye, FaRocket } from 'react-icons/fa'
 
 const Home = () => {
   const navigate = useNavigate()
@@ -31,7 +31,7 @@ const Home = () => {
             </div>
           </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
-            FinanceTracker
+            Spendy
           </h1>
           <p className="text-xl text-slate-300 mb-8">Your personal finance companion</p>
           <div className="flex items-center justify-center gap-2 text-blue-400">
@@ -53,7 +53,7 @@ const Home = () => {
           </h1>
           <p className="text-xl text-slate-300 mb-8">Ready to take control of your finances?</p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-xl p-6">
               <FaChartLine className="text-3xl text-blue-400 mb-4 mx-auto" />
               <h3 className="font-semibold text-slate-200 mb-2">Track Expenses</h3>
@@ -69,15 +69,30 @@ const Home = () => {
               <h3 className="font-semibold text-slate-200 mb-2">Manage Budget</h3>
               <p className="text-slate-400 text-sm">Stay on top of your finances</p>
             </div>
+            <div className="bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 rounded-xl p-6">
+              <FaBullseye className="text-3xl text-orange-400 mb-4 mx-auto" />
+              <h3 className="font-semibold text-slate-200 mb-2">Set Goals</h3>
+              <p className="text-slate-400 text-sm">Plan for your future</p>
+            </div>
           </div>
           
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ring-2 ring-blue-500/30"
-          >
-            Go to Dashboard
-            <FaArrowRight className="text-lg" />
-          </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <button 
+              onClick={() => navigate('/dashboard')}
+              className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ring-2 ring-blue-500/30"
+            >
+              Go to Dashboard
+              <FaArrowRight className="text-lg" />
+            </button>
+            
+            <button 
+              onClick={() => navigate('/savings')}
+              className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ring-2 ring-green-500/30"
+            >
+              Start Saving
+              <FaRocket className="text-lg" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
