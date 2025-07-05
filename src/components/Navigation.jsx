@@ -16,7 +16,7 @@ const Navigation = () => {
             <Link to="/" className="flex items-center gap-2 text-xl font-bold text-white">
               <FaWallet className="text-2xl text-blue-400" />
               <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                FinanceTracker
+                Spendy
               </span>
             </Link>
             <div className="flex items-center space-x-2">

@@ -1,4 +1,6 @@
-# React + Vite
+# Spendy
+
+A modern personal finance tracking application built with React and Vite.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
