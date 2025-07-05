@@ -15,7 +15,6 @@
     "dev:full": "concurrently \"npm run dev\" \"npm run server\""
   },
   "dependencies": {
-    "axios": "^1.10.0",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
