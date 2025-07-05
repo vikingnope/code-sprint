@@ -104,12 +104,14 @@ const Dashboard = () => {
           <ExpenseSummary monthlyData={monthlyData} transactions={transactions} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Recent Transactions */}
-          <RecentTransactions transactions={transactions} />
-
-          {/* Monthly Spending Trend */}
+        {/* Monthly Spending Trend */}
+        <div className="mb-8">
           <SpendingTrend monthlyData={monthlyData} />
+        </div>
+
+        {/* Recent Transactions */}
+        <div className="mb-8">
+          <RecentTransactions transactions={transactions} />
         </div>
       </div>
       

@@ -9,10 +9,10 @@ const SpendingTrend = ({ monthlyData }) => {
   }))
 
   return (
-    <div className="bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700 p-6 hover:shadow-2xl transition-all duration-300">
+    <div className="bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700 p-6 hover:shadow-2xl transition-all duration-300 h-fit">
       <h2 className="text-2xl font-bold text-slate-200 mb-6">Spending Trend</h2>
-      <ResponsiveContainer width="100%" height={350}>
-        <LineChart data={monthlyChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={monthlyChartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
           <XAxis dataKey="month" tick={{ fill: '#9ca3af' }} />
           <YAxis tick={{ fill: '#9ca3af' }} />
