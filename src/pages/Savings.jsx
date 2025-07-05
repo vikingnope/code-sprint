@@ -75,7 +75,7 @@ const Savings = () => {
           <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-700">
             <div className="text-xs sm:text-sm text-slate-400 mb-2">Current Monthly Savings</div>
             <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-400 mb-2">
-              ${savingsCapacity?.avgSavings?.toFixed(2) || '0.00'}
+              €{savingsCapacity?.avgSavings?.toFixed(2) || '0.00'}
             </div>
             <div className="text-xs sm:text-sm text-slate-500">
               {savingsCapacity?.savingsRate?.toFixed(1) || 0}% of income
@@ -88,14 +88,14 @@ const Savings = () => {
               {currentGoals.length}
             </div>
             <div className="text-xs sm:text-sm text-slate-500">
-              Target: ${currentGoals.reduce((sum, goal) => sum + goal.targetAmount, 0).toFixed(0)}
+              Target: €{currentGoals.reduce((sum, goal) => sum + goal.targetAmount, 0).toFixed(0)}
             </div>
           </div>
           
           <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-5 lg:p-6 shadow-sm border border-slate-700">
             <div className="text-xs sm:text-sm text-slate-400 mb-2">Monthly Contributions</div>
             <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-400 mb-2">
-              ${currentGoals.reduce((sum, goal) => sum + goal.monthlyAmount, 0).toFixed(2)}
+              €{currentGoals.reduce((sum, goal) => sum + goal.monthlyAmount, 0).toFixed(2)}
             </div>
             <div className="text-xs sm:text-sm text-slate-500">Committed</div>
           </div>

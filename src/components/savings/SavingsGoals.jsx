@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { FaPlus, FaTrash, FaEdit, FaBullseye  } from 'react-icons/fa'
 import { calculateGoalProgress } from '@/utils/savingsEngine'
+import useSavingsStore from '@/stores/savingsStore'
 
 const goalCategories = [
   { value: 'emergency', label: 'Emergency Fund', icon: '🚨' },
@@ -81,9 +82,8 @@ const GoalCard = ({ goal, monthlyData, updateGoal, deleteGoal, setEditingGoal })
               onClick={() => {
                 const amount = prompt('Add amount to goal:', '0')
                 if (amount && !isNaN(parseFloat(amount))) {
-                  updateGoal(goal.id, { 
-                    currentAmount: (goal.currentAmount || 0) + parseFloat(amount) 
-                  })
+                  const { addAmountToGoal } = useSavingsStore.getState()
+                  addAmountToGoal(goal.id, parseFloat(amount))
                 }
               }}
               className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
@@ -98,7 +98,7 @@ const GoalCard = ({ goal, monthlyData, updateGoal, deleteGoal, setEditingGoal })
 }
 
 const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
-  const [goals, setGoals] = useState([])
+  const { goals, addGoal: addGoalToStore, updateGoal, deleteGoal } = useSavingsStore()
   const [showAddGoal, setShowAddGoal] = useState(false)
   const [editingGoal, setEditingGoal] = useState(null)
   const [newGoal, setNewGoal] = useState({
@@ -110,29 +110,9 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
     description: ''
   })
 
-  useEffect(() => {
-    const savedGoals = localStorage.getItem('savingsGoals')
-    if (savedGoals) {
-      setGoals(JSON.parse(savedGoals))
-    }
-  }, [])
-
-  const saveGoals = (updatedGoals) => {
-    localStorage.setItem('savingsGoals', JSON.stringify(updatedGoals))
-    setGoals(updatedGoals)
-  }
-
   const addGoal = () => {
     if (newGoal.name && newGoal.targetAmount && newGoal.monthlyAmount) {
-      const goal = {
-        ...newGoal,
-        id: Date.now(),
-        targetAmount: parseFloat(newGoal.targetAmount),
-        monthlyAmount: parseFloat(newGoal.monthlyAmount),
-        currentAmount: 0,
-        createdAt: new Date().toISOString()
-      }
-      saveGoals([...goals, goal])
+      addGoalToStore(newGoal)
       setNewGoal({
         name: '',
         targetAmount: '',
@@ -143,18 +123,6 @@ const SavingsGoals = ({ monthlyData, savingsCapacity }) => {
       })
       setShowAddGoal(false)
     }
-  }
-
-  const updateGoal = (goalId, updates) => {
-    const updatedGoals = goals.map(goal => 
-      goal.id === goalId ? { ...goal, ...updates } : goal
-    )
-    saveGoals(updatedGoals)
-  }
-
-  const deleteGoal = (goalId) => {
-    const updatedGoals = goals.filter(goal => goal.id !== goalId)
-    saveGoals(updatedGoals)
   }
 
   const addGoalForm = showAddGoal ? (
