@@ -175,6 +175,8 @@ class SpendyPopup {
     button.disabled = true;
 
     try {
+      console.log('Popup: Requesting notification permission...');
+      
       // First, try to request notification permissions
       const hasPermission = await this.requestNotificationPermission();
       
@@ -183,14 +185,29 @@ class SpendyPopup {
         return;
       }
 
-      await chrome.runtime.sendMessage({
+      console.log('Popup: Sending manual trigger request...');
+      
+      const response = await chrome.runtime.sendMessage({
         action: 'MANUAL_TRIGGER',
-        data: { source: 'popup' }
+        data: { 
+          source: 'popup',
+          timestamp: Date.now(),
+          useRandom: false // Use consistent test notification
+        }
       });
 
-      this.addNotification('Sample Alert Sent', 'Check your notifications', 'success');
+      console.log('Popup: Received response:', response);
+
+      if (response && response.success) {
+        this.addNotification('Sample Alert Sent', `Notification ID: ${response.notificationId}`, 'success');
+        console.log('Popup: Manual alert sent successfully');
+      } else {
+        const errorMsg = response?.error || 'Unknown error occurred';
+        this.addNotification('Failed to Send Alert', errorMsg, 'error');
+        console.error('Popup: Manual alert failed:', errorMsg);
+      }
     } catch (error) {
-      console.error('Failed to trigger sample alert:', error);
+      console.error('Popup: Failed to trigger sample alert:', error);
       this.addNotification('Failed to Send Alert', error.message, 'error');
     } finally {
       setTimeout(() => {
@@ -202,12 +219,18 @@ class SpendyPopup {
 
   async requestNotificationPermission() {
     return new Promise((resolve) => {
+      console.log('Popup: Checking notification permission...');
+      
       chrome.notifications.getPermissionLevel((level) => {
-        console.log('Current notification permission level:', level);
+        console.log('Popup: Current notification permission level:', level);
+        
         if (level === 'granted') {
+          console.log('Popup: Permission already granted');
           resolve(true);
         } else {
-          // Try to create a test notification to trigger permission request
+          console.log('Popup: Requesting notification permission...');
+          
+          // Try to create a permission request notification
           chrome.notifications.create('permission-request', {
             type: 'basic',
             iconUrl: 'icons/spendy48.png',
@@ -215,11 +238,16 @@ class SpendyPopup {
             message: 'Click Allow to receive financial alerts'
           }, (notificationId) => {
             if (chrome.runtime.lastError) {
-              console.error('Permission request failed:', chrome.runtime.lastError);
-              resolve(false);
+              console.error('Popup: Permission request failed:', chrome.runtime.lastError);
+              // Try alternative approach - request via background script
+              chrome.runtime.sendMessage({
+                action: 'REQUEST_PERMISSION'
+              }, (response) => {
+                resolve(response?.success || false);
+              });
             } else {
-              console.log('Permission granted via test notification');
-              // Clear the test notification after a few seconds
+              console.log('Popup: Permission request notification created:', notificationId);
+              // Clear the permission request notification
               setTimeout(() => {
                 chrome.notifications.clear('permission-request');
               }, 3000);
@@ -239,33 +267,31 @@ class SpendyPopup {
     button.disabled = true;
 
     try {
-      // Try to trigger from content script first
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-      const activeTab = tabs[0];
+      console.log('Popup: Triggering transaction simulation...');
 
-      if (activeTab) {
-        try {
-          await chrome.tabs.sendMessage(activeTab.id, {
-            action: 'TRIGGER_SAMPLE_TRANSACTION'
-          });
-        } catch (error) {
-          // If content script fails, trigger from background
-          await chrome.runtime.sendMessage({
-            action: 'NEW_TRANSACTION',
-            data: {
-              amount: Math.floor(Math.random() * 100) + 20,
-              description: 'Sample Transaction from Extension',
-              type: 'debit',
-              date: new Date().toISOString(),
-              source: 'popup_manual'
-            }
-          });
+      // Use the dedicated simulation action
+      const response = await chrome.runtime.sendMessage({
+        action: 'SIMULATE_TRANSACTION',
+        data: { 
+          source: 'popup',
+          timestamp: Date.now()
         }
-      }
+      });
 
-      this.addNotification('Transaction Simulated', 'New transaction alert triggered', 'success');
+      console.log('Popup: Transaction simulation response:', response);
+
+      if (response && response.success) {
+        const amount = response.transaction?.amount || 'Unknown';
+        const description = response.transaction?.description || 'Transaction';
+        this.addNotification('Transaction Simulated', `€${amount} - ${description}`, 'success');
+        console.log('Popup: Transaction simulation successful');
+      } else {
+        const errorMsg = response?.error || 'Unknown error occurred';
+        this.addNotification('Failed to Simulate Transaction', errorMsg, 'error');
+        console.error('Popup: Transaction simulation failed:', errorMsg);
+      }
     } catch (error) {
-      console.error('Failed to trigger transaction alert:', error);
+      console.error('Popup: Failed to trigger transaction alert:', error);
       this.addNotification('Failed to Simulate Transaction', error.message, 'error');
     } finally {
       setTimeout(() => {

@@ -62,8 +62,18 @@ class SpendyExtensionBackground {
           break;
 
         case 'MANUAL_TRIGGER':
-          await this.triggerManualAlert(request.data);
-          sendResponse({ success: true });
+          const result = await this.triggerManualAlert(request.data);
+          sendResponse(result);
+          break;
+
+        case 'REQUEST_PERMISSION':
+          const permissionResult = await this.requestNotificationPermission();
+          sendResponse({ success: permissionResult });
+          break;
+
+        case 'SIMULATE_TRANSACTION':
+          const simulationResult = await this.simulateTransaction(request.data);
+          sendResponse(simulationResult);
           break;
 
         default:
@@ -121,13 +131,13 @@ class SpendyExtensionBackground {
   checkBudgetAlert(transaction) {
     const amount = Math.abs(transaction.amount);
     
-    // Simple budget check - in a real app, this would be more sophisticated
-    if (amount > 100) {
+    // Simple budget check - adjusted for demo purposes
+    if (amount > 50) { // Lowered threshold for demo
       return {
         type: 'BUDGET_WARNING',
-        title: 'Large Transaction Alert',
-        message: `Large transaction detected: €${amount.toFixed(2)} - ${transaction.description}`,
-        severity: 'HIGH',
+        title: 'Transaction Alert',
+        message: `Transaction detected: €${amount.toFixed(2)} - ${transaction.description}`,
+        severity: amount > 200 ? 'CRITICAL' : amount > 100 ? 'HIGH' : 'MEDIUM',
         transaction
       };
     }
@@ -137,17 +147,30 @@ class SpendyExtensionBackground {
 
   checkUnusualSpending(transaction) {
     // Check if transaction is much larger than average
-    if (this.transactionHistory.length < 5) return null;
+    if (this.transactionHistory.length < 2) {
+      // For first few transactions, just check if it's a large amount
+      const currentAmount = Math.abs(transaction.amount);
+      if (currentAmount > 150) {
+        return {
+          type: 'UNUSUAL_SPENDING',
+          title: 'Large Transaction',
+          message: `This is a relatively large transaction: €${currentAmount.toFixed(2)}`,
+          severity: 'MEDIUM',
+          transaction
+        };
+      }
+      return null;
+    }
 
-    const recentTransactions = this.transactionHistory.slice(-10);
+    const recentTransactions = this.transactionHistory.slice(-5);
     const avgAmount = recentTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0) / recentTransactions.length;
     const currentAmount = Math.abs(transaction.amount);
 
-    if (currentAmount > avgAmount * 2 && currentAmount > 50) {
+    if (currentAmount > avgAmount * 1.5 && currentAmount > 75) { // Lowered thresholds for demo
       return {
         type: 'UNUSUAL_SPENDING',
         title: 'Unusual Spending Pattern',
-        message: `This transaction (€${currentAmount.toFixed(2)}) is much larger than your recent average (€${avgAmount.toFixed(2)})`,
+        message: `This transaction (€${currentAmount.toFixed(2)}) is larger than your recent average (€${avgAmount.toFixed(2)})`,
         severity: 'MEDIUM',
         transaction
       };
@@ -171,30 +194,68 @@ class SpendyExtensionBackground {
   async sendNotification(alert) {
     console.log('Spendy Extension: Attempting to send notification:', alert);
     
-    const notificationId = `spendy-${Date.now()}`;
+    // First check if notifications are enabled in preferences
+    if (!this.alertPreferences.enabled) {
+      console.log('Spendy Extension: Notifications disabled in preferences');
+      throw new Error('Notifications are disabled in extension preferences');
+    }
+
+    // Check notification permissions
+    const hasPermission = await this.checkNotificationPermission();
+    if (!hasPermission) {
+      console.log('Spendy Extension: No notification permission');
+      throw new Error('Notification permission not granted');
+    }
+    
+    const notificationId = `spendy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
     const notificationOptions = {
       type: 'basic',
       iconUrl: 'icons/spendy48.png',
-      title: alert.title,
-      message: alert.message,
+      title: alert.title || 'Spendy Alert',
+      message: alert.message || 'Financial notification',
       priority: this.getSeverityPriority(alert.severity),
-      requireInteraction: alert.severity === 'CRITICAL'
+      requireInteraction: alert.severity === 'CRITICAL',
+      silent: false
     };
 
     try {
-      await chrome.notifications.create(notificationId, notificationOptions);
-      console.log('Spendy Extension: Notification created successfully:', notificationId);
+      console.log('Spendy Extension: Creating notification with options:', notificationOptions);
+      
+      const createdId = await new Promise((resolve, reject) => {
+        chrome.notifications.create(notificationId, notificationOptions, (id) => {
+          if (chrome.runtime.lastError) {
+            console.error('Spendy Extension: Notification creation failed:', chrome.runtime.lastError);
+            reject(new Error(chrome.runtime.lastError.message));
+          } else {
+            console.log('Spendy Extension: Notification created successfully:', id);
+            resolve(id);
+          }
+        });
+      });
       
       // Store notification for tracking
-      await this.storeNotification(notificationId, alert);
+      await this.storeNotification(createdId, alert);
+      
+      return createdId;
     } catch (error) {
       console.error('Spendy Extension: Failed to create notification:', error);
       throw error;
     }
   }
 
+  async checkNotificationPermission() {
+    return new Promise((resolve) => {
+      chrome.notifications.getPermissionLevel((level) => {
+        console.log('Spendy Extension: Current permission level:', level);
+        resolve(level === 'granted');
+      });
+    });
+  }
+
   async triggerManualAlert(alertData) {
+    console.log('Spendy Extension: Manual alert triggered with data:', alertData);
+    
     const alerts = [
       {
         type: 'BUDGET_EXCEEDED',
@@ -204,7 +265,7 @@ class SpendyExtensionBackground {
       },
       {
         type: 'UNUSUAL_SPENDING',
-        title: 'Unusual Spending Pattern',
+        title: 'Unusual Spending Pattern', 
         message: `Large transaction detected: €150.00 - Concert tickets`,
         severity: 'HIGH'
       },
@@ -213,11 +274,30 @@ class SpendyExtensionBackground {
         title: 'Category Spending Spike',
         message: `Food & Dining spending increased by 60% this month`,
         severity: 'MEDIUM'
+      },
+      {
+        type: 'TEST_NOTIFICATION',
+        title: 'Spendy Test Alert',
+        message: `Extension is working! This is a test notification sent at ${new Date().toLocaleTimeString()}`,
+        severity: 'LOW'
       }
     ];
 
-    const randomAlert = alerts[Math.floor(Math.random() * alerts.length)];
-    await this.sendNotification(randomAlert);
+    // Select a random alert or use the first one for consistency in testing
+    const selectedAlert = alertData?.useRandom 
+      ? alerts[Math.floor(Math.random() * alerts.length)]
+      : alerts[3]; // Use test notification by default
+
+    console.log('Spendy Extension: Sending selected alert:', selectedAlert);
+    
+    try {
+      const notificationId = await this.sendNotification(selectedAlert);
+      console.log('Spendy Extension: Manual alert sent successfully:', notificationId);
+      return { success: true, notificationId, alert: selectedAlert };
+    } catch (error) {
+      console.error('Spendy Extension: Failed to send manual alert:', error);
+      return { success: false, error: error.message };
+    }
   }
 
   getSeverityPriority(severity) {
@@ -330,6 +410,61 @@ class SpendyExtensionBackground {
         }
       });
     });
+  }
+
+  async simulateTransaction(data) {
+    console.log('Spendy Extension: Simulating transaction with data:', data);
+    
+    try {
+      // Create a realistic transaction that will trigger alerts
+      const transactionAmount = data?.amount || (Math.floor(Math.random() * 200) + 150); // €150-€349
+      const descriptions = [
+        'Large Purchase - Electronics Store',
+        'Restaurant Bill - Premium Dining',
+        'Online Shopping - Fashion',
+        'Grocery Store - Weekly Shopping',
+        'Gas Station - Fuel Purchase',
+        'Coffee Shop - Daily Coffee',
+        'Pharmacy - Medical Supplies'
+      ];
+      
+      const simulatedTransaction = {
+        amount: transactionAmount,
+        description: descriptions[Math.floor(Math.random() * descriptions.length)],
+        type: 'debit',
+        date: new Date().toISOString(),
+        source: 'simulation',
+        category: 'Shopping'
+      };
+
+      console.log('Spendy Extension: Created simulated transaction:', simulatedTransaction);
+
+      // Process the transaction through normal flow
+      await this.handleNewTransaction(simulatedTransaction);
+
+      // Also send a direct notification for the transaction
+      const transactionAlert = {
+        type: 'NEW_TRANSACTION',
+        title: 'New Transaction Detected',
+        message: `€${transactionAmount.toFixed(2)} - ${simulatedTransaction.description}`,
+        severity: transactionAmount > 200 ? 'HIGH' : 'MEDIUM',
+        transaction: simulatedTransaction
+      };
+
+      await this.sendNotification(transactionAlert);
+
+      return { 
+        success: true, 
+        transaction: simulatedTransaction,
+        message: 'Transaction simulated and notification sent'
+      };
+    } catch (error) {
+      console.error('Spendy Extension: Failed to simulate transaction:', error);
+      return { 
+        success: false, 
+        error: error.message 
+      };
+    }
   }
 }
 
