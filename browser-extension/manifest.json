@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Spendy Transaction Alerts",
+  "version": "1.0.0",
+  "description": "Get instant notifications when new transactions are detected on your financial dashboard",
+  "permissions": [
+    "notifications",
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "http://localhost:5173/*",
+    "http://localhost:8080/*",
+    "https://*.vercel.app/*",
+    "https://*.netlify.app/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "http://localhost:5173/*",
+        "http://localhost:8080/*",
+        "https://*.vercel.app/*",
+        "https://*.netlify.app/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Spendy Transaction Alerts",
+    "default_icon": {
+      "16": "icons/spendy16.png",
+      "32": "icons/spendy32.png",
+      "48": "icons/spendy48.png",
+      "128": "icons/spendy128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/spendy16.png",
+    "32": "icons/spendy32.png",
+    "48": "icons/spendy48.png",
+    "128": "icons/spendy128.png"
+  }
+}

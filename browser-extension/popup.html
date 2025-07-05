@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spendy Transaction Alerts</title>
+  <style>
+    body {
+      width: 350px;
+      min-height: 400px;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+      color: rgba(255, 255, 255, 0.87);
+    }
+
+    .header {
+      background: rgba(51, 65, 85, 0.3);
+      padding: 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .header h1 {
+      margin: 0 0 5px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 12px;
+      color: rgb(148, 163, 184);
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .section {
+      margin-bottom: 25px;
+    }
+
+    .section h3 {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgb(148, 163, 184);
+    }
+
+    .button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(51, 65, 85, 0.8);
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .button:hover {
+      background: rgba(51, 65, 85, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .button.secondary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .button.secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      background: rgba(51, 65, 85, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      font-size: 12px;
+    }
+
+    .status.connected {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #10b981;
+    }
+
+    .status.disconnected {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .preferences {
+      margin-top: 20px;
+    }
+
+    .checkbox-group {
+      margin-bottom: 15px;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .checkbox input {
+      margin-right: 8px;
+      accent-color: #8b5cf6;
+    }
+
+    .recent-notifications {
+      max-height: 150px;
+      overflow-y: auto;
+      background: rgba(51, 65, 85, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .notification-item {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.7);
+      font-size: 11px;
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .notification-message {
+      color: rgb(148, 163, 184);
+      margin-bottom: 4px;
+    }
+
+    .notification-time {
+      color: rgb(148, 163, 184);
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .footer {
+      padding: 15px 20px;
+      text-align: center;
+      font-size: 10px;
+      color: rgb(148, 163, 184);
+      border-top: 1px solid rgba(51, 65, 85, 0.7);
+    }
+
+    .loading {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(148, 163, 184, 0.3);
+      border-radius: 50%;
+      border-top-color: #8b5cf6;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    /* Custom scrollbar to match main site */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💰 Spendy Alerts</h1>
+    <p>Transaction monitoring & notifications</p>
+  </div>
+
+  <div class="content">
+    <div class="section">
+      <div id="connection-status" class="status disconnected">
+        <span>Dashboard Status</span>
+        <span class="status-dot"></span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🔔 Demo Controls</h3>
+      <button id="trigger-transaction" class="button secondary">
+        Simulate New Transaction
+      </button>
+      <p style="font-size: 11px; color: rgb(148, 163, 184); margin-top: 10px;">
+        📋 <strong>Note:</strong> This button will request notification permissions if needed. 
+        Look for browser notifications (not just popup messages).
+      </p>
+    </div>
+
+    <div class="section">
+      <h3>⚙️ Preferences</h3>
+      <div class="checkbox-group">
+        <div class="checkbox">
+          <input type="checkbox" id="enable-alerts" checked>
+          <label for="enable-alerts">Enable all alerts</label>
+        </div>
+        <div class="checkbox">
+          <input type="checkbox" id="budget-alerts" checked>
+          <label for="budget-alerts">Budget alerts</label>
+        </div>
+        <div class="checkbox">
+          <input type="checkbox" id="unusual-spending" checked>
+          <label for="unusual-spending">Unusual spending alerts</label>
+        </div>
+        <div class="checkbox">
+          <input type="checkbox" id="category-spikes" checked>
+          <label for="category-spikes">Category spike alerts</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>📋 Recent Notifications</h3>
+      <div id="recent-notifications" class="recent-notifications">
+        <div class="notification-item">
+          <div class="notification-title">Extension Ready</div>
+          <div class="notification-message">Monitoring for transactions...</div>
+          <div class="notification-time">Just now</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>Spendy Transaction Alerts v1.0.0</div>
+    <div>Click on notifications to open dashboard</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
