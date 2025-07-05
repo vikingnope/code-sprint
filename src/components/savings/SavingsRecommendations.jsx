@@ -1,31 +1,43 @@
 import { useState, useEffect } from 'react'
-import { FaLightbulb, FaRocket, FaShieldAlt, FaChartLine, FaClock, FaRobot } from 'react-icons/fa'
+import { FaLightbulb, FaRocket, FaShieldAlt, FaChartLine, FaClock } from 'react-icons/fa'
 import { FaArrowTrendDown } from 'react-icons/fa6'
 import { 
   suggestSavingsAmount, 
-  generateCutbackSuggestions, 
-  generateSmartSuggestions 
+  generateCutbackSuggestions 
 } from '@/utils/savingsEngine'
 
 const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, currentGoals = [] }) => {
   const [activeTab, setActiveTab] = useState('capacity')
   const [savingsAmount, setSavingsAmount] = useState(null)
   const [cutbackSuggestions, setCutbackSuggestions] = useState([])
-  const [smartSuggestions, setSmartSuggestions] = useState([])
   const [selectedSuggestions, setSelectedSuggestions] = useState(new Set())
 
   useEffect(() => {
     if (savingsCapacity && Object.keys(savingsCapacity).length > 0) {
-      const amount = suggestSavingsAmount(savingsCapacity, currentGoals)
-      setSavingsAmount(amount)
-      
       const cutbacks = generateCutbackSuggestions(savingsCapacity.categoryAverages, savingsCapacity)
       setCutbackSuggestions(cutbacks)
-      
-      const smart = generateSmartSuggestions(savingsCapacity.categoryAverages, transactions)
-      setSmartSuggestions(smart)
     }
-  }, [savingsCapacity, currentGoals, transactions])
+  }, [savingsCapacity])
+
+  // Recalculate savings amount whenever selected suggestions change
+  useEffect(() => {
+    if (savingsCapacity && Object.keys(savingsCapacity).length > 0) {
+      const adjustedCapacity = calculateAdjustedCapacity(savingsCapacity, cutbackSuggestions, selectedSuggestions)
+      const amount = suggestSavingsAmount(adjustedCapacity, currentGoals)
+      setSavingsAmount(amount)
+    }
+  }, [savingsCapacity, currentGoals, cutbackSuggestions, selectedSuggestions])
+
+  const calculateAdjustedCapacity = (originalCapacity, cutbacks, selectedSuggestions) => {
+    const totalPotentialSavings = getTotalPotentialSavings()
+    
+    return {
+      ...originalCapacity,
+      avgSavings: originalCapacity.avgSavings + totalPotentialSavings,
+      avgExpenses: originalCapacity.avgExpenses - totalPotentialSavings,
+      savingsRate: ((originalCapacity.avgSavings + totalPotentialSavings) / originalCapacity.avgIncome) * 100
+    }
+  }
 
   const toggleSuggestion = (suggestionId) => {
     const newSelected = new Set(selectedSuggestions)
@@ -44,16 +56,11 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
         total += suggestion.potentialSavings
       }
     })
-    smartSuggestions.forEach((suggestion, index) => {
-      if (selectedSuggestions.has(`smart-${index}`)) {
-        total += suggestion.potentialSavings
-      }
-    })
     return total
   }
 
   const SavingsCapacityTab = () => (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-slate-700">
         <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center">
           <FaChartLine className="mr-2 text-blue-400" />
@@ -69,6 +76,11 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
             <div className="text-xs sm:text-sm text-slate-500">
               {savingsCapacity?.savingsRate?.toFixed(1) || 0}% of income
             </div>
+            {getTotalPotentialSavings() > 0 && (
+              <div className="text-xs text-green-400 mt-1">
+                +€{getTotalPotentialSavings().toFixed(2)} from cuts
+              </div>
+            )}
           </div>
           
           <div className="bg-slate-700/50 rounded-lg p-3 sm:p-4 border border-slate-600">
@@ -77,6 +89,11 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
               €{savingsAmount?.available?.toFixed(2) || '0.00'}
             </div>
             <div className="text-xs sm:text-sm text-slate-500">After current goals</div>
+            {getTotalPotentialSavings() > 0 && (
+              <div className="text-xs text-blue-400 mt-1">
+                Includes selected cuts
+              </div>
+            )}
           </div>
           
           <div className="bg-slate-700/50 rounded-lg p-3 sm:p-4 border border-slate-600">
@@ -98,7 +115,9 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
               €{savingsAmount?.conservative?.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
-              Safe amount to save without lifestyle changes
+              {getTotalPotentialSavings() > 0 
+                ? 'Safe amount including selected spending cuts' 
+                : 'Safe amount to save without lifestyle changes'}
             </p>
           </div>
           
@@ -111,7 +130,9 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
               €{savingsAmount?.aggressive?.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
-              Maximum recommended with minor adjustments
+              {getTotalPotentialSavings() > 0 
+                ? 'Maximum potential with selected spending cuts' 
+                : 'Maximum recommended with minor adjustments'}
             </p>
           </div>
         </div>
@@ -120,7 +141,7 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
   )
 
   const CutbackSuggestionsTab = () => (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-slate-700">
         <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center">
           <FaArrowTrendDown className="mr-2 text-orange-400" />
@@ -178,83 +199,9 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
     </div>
   )
 
-  const SmartSuggestionsTab = () => (
-    <div className="space-y-6 animate-fade-in">
-      <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-slate-700">
-        <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center">
-          <FaRobot className="mr-2 text-purple-400" />
-          AI-Powered Insights
-        </h3>
-        
-        <div className="grid gap-4">
-          {smartSuggestions.map((suggestion, index) => (
-            <div 
-              key={index}
-              className={`bg-slate-700/50 rounded-lg p-3 sm:p-4 border-2 transition-all cursor-pointer ${
-                selectedSuggestions.has(`smart-${index}`) 
-                  ? 'border-purple-400 bg-purple-400/10' 
-                  : 'border-slate-600 hover:border-slate-500'
-              }`}
-              onClick={() => toggleSuggestion(`smart-${index}`)}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className="font-medium text-slate-200 text-sm sm:text-base">{suggestion.title}</span>
-                    <span className={`px-2 py-1 rounded text-xs whitespace-nowrap ${
-                      suggestion.type === 'frequency' ? 'bg-blue-400/20 text-blue-400' :
-                      suggestion.type === 'timing' ? 'bg-orange-400/20 text-orange-400' :
-                      'bg-slate-600/50 text-slate-400'
-                    }`}>
-                      {suggestion.type}
-                    </span>
-                  </div>
-                  
-                  <div className="text-xs sm:text-sm text-slate-400 mb-3 break-words">
-                    {suggestion.description}
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <div className="text-xs sm:text-sm font-medium text-slate-300">Action Items:</div>
-                    {suggestion.actionItems.map((item, i) => (
-                      <div key={i} className="text-xs sm:text-sm text-slate-400 flex items-start">
-                        <span className="w-2 h-2 bg-slate-500 rounded-full mr-2 mt-1 flex-shrink-0"></span>
-                        <span className="break-words">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="text-right flex-shrink-0">
-                  <div className="text-lg font-bold text-purple-400">
-                    +€{suggestion.potentialSavings.toFixed(2)}
-                  </div>
-                  <div className="text-xs sm:text-sm text-slate-500">per month</div>
-                  <div className="text-xs text-slate-600">
-                    €{(suggestion.potentialSavings * 12).toFixed(0)}/year
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {smartSuggestions.length === 0 && (
-          <div className="text-center py-8">
-            <FaRobot className="text-slate-400 text-4xl mx-auto mb-4" />
-            <p className="text-slate-400 text-sm">
-              No AI insights available yet. Add more transaction data to get personalized recommendations.
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-
   const tabs = [
     { id: 'capacity', label: 'Savings Capacity', icon: FaChartLine },
-    { id: 'cutbacks', label: 'Spending Cuts', icon: FaArrowTrendDown },
-    { id: 'smart', label: 'AI Insights', icon: FaRobot }
+    { id: 'cutbacks', label: 'Spending Cuts', icon: FaArrowTrendDown }
   ]
 
   return (
@@ -289,9 +236,16 @@ const SavingsRecommendations = ({ savingsCapacity, monthlyData, transactions, cu
         </nav>
       </div>
 
-      {activeTab === 'capacity' && <SavingsCapacityTab />}
-      {activeTab === 'cutbacks' && <CutbackSuggestionsTab />}
-      {activeTab === 'smart' && <SmartSuggestionsTab />}
+      {activeTab === 'capacity' && (
+        <div className="animate-fade-in">
+          <SavingsCapacityTab />
+        </div>
+      )}
+      {activeTab === 'cutbacks' && (
+        <div className="animate-fade-in">
+          <CutbackSuggestionsTab />
+        </div>
+      )}
     </div>
   )
 }
