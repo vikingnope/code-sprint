@@ -11,26 +11,26 @@ const RecentTransactions = ({ transactions }) => {
       <h2 className="text-2xl font-bold text-slate-200 mb-6">Recent Transactions</h2>
       <div className="space-y-4">
         {recentTransactions.map((transaction, index) => (
-          <div key={index} className="flex items-center justify-between p-4 bg-slate-700/50 border border-slate-600 rounded-xl hover:bg-slate-600/50 transition-colors">
-            <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-full border ${transaction.type === 'credit' ? 'bg-green-500/20 border-green-500/30' : 'bg-red-500/20 border-red-500/30'}`}>
+          <div key={index} className="flex items-center justify-between p-3 sm:p-4 bg-slate-700/50 border border-slate-600 rounded-xl hover:bg-slate-600/50 transition-colors min-w-0">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+              <div className={`p-2 sm:p-3 rounded-full border flex-shrink-0 ${transaction.type === 'credit' ? 'bg-green-500/20 border-green-500/30' : 'bg-red-500/20 border-red-500/30'}`}>
                 {transaction.type === 'credit' ? (
-                  <FaArrowUp className={`w-4 h-4 ${transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'}`} />
+                  <FaArrowUp className={`w-3 h-3 sm:w-4 sm:h-4 ${transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'}`} />
                 ) : (
-                  <FaArrowDown className={`w-4 h-4 ${transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'}`} />
+                  <FaArrowDown className={`w-3 h-3 sm:w-4 sm:h-4 ${transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'}`} />
                 )}
               </div>
-              <div className="flex-1">
-                <p className="font-medium text-slate-200 truncate">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-slate-200 truncate text-sm sm:text-base">
                   {transaction.description}
                 </p>
-                <p className="text-sm text-slate-400">
+                <p className="text-xs sm:text-sm text-slate-400 truncate">
                   {transaction.date.toLocaleDateString()} • {categorizeTransaction(transaction.description)}
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <p className={`font-bold ${transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'}`}>
+            <div className="text-right flex-shrink-0 ml-2">
+              <p className={`font-bold text-sm sm:text-base ${transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'}`}>
                 {transaction.type === 'credit' ? '+' : '-'}€{Math.abs(transaction.amount).toLocaleString()}
               </p>
             </div>
