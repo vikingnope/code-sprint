@@ -5,12 +5,24 @@ import { categorizeTransaction } from '@/utils/csvParser'
 
 const RecentTransactions = ({ transactions }) => {
   const [showAllTransactions, setShowAllTransactions] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
   
   const recentTransactions = transactions
     .sort((a, b) => b.date - a.date)
     .slice(0, 10)
   
   const allTransactions = transactions.sort((a, b) => b.date - a.date)
+
+  const handleOpenModal = () => {
+    setShowAllTransactions(true)
+    // Small delay to ensure the modal is rendered before starting animation
+    setTimeout(() => setIsAnimating(true), 10)
+  }
+
+  const handleCloseModal = () => {
+    setIsAnimating(false)
+    setTimeout(() => setShowAllTransactions(false), 300) // Match animation duration
+  }
 
   const mainContent = (
     <div className="bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700 p-6 hover:shadow-2xl transition-all duration-300">
@@ -45,7 +57,7 @@ const RecentTransactions = ({ transactions }) => {
       </div>
       <div className="mt-6 flex justify-center">
         <button 
-          onClick={() => setShowAllTransactions(true)}
+          onClick={handleOpenModal}
           className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors duration-200 flex items-center gap-2"
         >
           <FaEye />
@@ -56,16 +68,23 @@ const RecentTransactions = ({ transactions }) => {
   )
 
   const modalContent = (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm sm:flex sm:items-center sm:justify-center sm:p-4" style={{ zIndex: 10000 }}>
+    <div 
+      className={`fixed inset-0 bg-black/50 backdrop-blur-sm sm:flex sm:items-center sm:justify-center sm:p-4 transition-all duration-300 ease-out ${
+        isAnimating ? 'opacity-100' : 'opacity-0'
+      }`} 
+      style={{ zIndex: 10000 }}
+    >
       {/* Mobile: Full screen modal */}
-      <div className="sm:hidden fixed inset-0 bg-slate-800 overflow-y-auto">
+      <div className={`sm:hidden fixed inset-0 bg-slate-800 overflow-y-auto transition-transform duration-300 ease-out ${
+        isAnimating ? 'translate-y-0' : 'translate-y-full'
+      }`}>
         <div className="sticky top-0 bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between z-10">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <FaEye className="text-blue-400" />
             All Transactions
           </h2>
           <button
-            onClick={() => setShowAllTransactions(false)}
+            onClick={handleCloseModal}
             className="text-slate-400 hover:text-white transition-colors text-xl p-2 -m-2"
           >
             <FaTimes />
@@ -103,14 +122,16 @@ const RecentTransactions = ({ transactions }) => {
       </div>
 
       {/* Desktop: Modal dialog */}
-      <div className="hidden sm:block w-full max-w-4xl max-h-[80vh] bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+      <div className={`hidden sm:block w-full max-w-4xl max-h-[80vh] bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden transition-all duration-300 ease-out ${
+        isAnimating ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+      }`}>
         <div className="flex items-center justify-between p-6 border-b border-slate-700">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <FaEye className="text-blue-400" />
             All Transactions
           </h2>
           <button
-            onClick={() => setShowAllTransactions(false)}
+            onClick={handleCloseModal}
             className="text-slate-400 hover:text-white transition-colors text-xl p-2 -m-2"
           >
             <FaTimes />
