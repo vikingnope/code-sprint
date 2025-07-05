@@ -26,6 +26,11 @@ export const generateResponse = (userInput, transactions, monthlyData) => {
     return getCategorySpending(input, transactions)
   }
   
+  // Handle category-specific savings requests
+  if (isCategorySpecificSavingsRequest(input)) {
+    return getCategorySpecificSavings(input, transactions)
+  }
+  
   // Handle savings and recommendations
   if (isSavingsRequest(input)) {
     return getSavingsAdvice(transactions)
@@ -90,6 +95,16 @@ const isSavingsRequest = (input) => {
   return keywords.some(keyword => input.includes(keyword))
 }
 
+const isCategorySpecificSavingsRequest = (input) => {
+  const categories = ['food', 'dining', 'entertainment', 'shopping', 'transport', 'groceries', 'housing', 'rent']
+  const savingsKeywords = ['save', 'saving', 'savings', 'tips', 'advice', 'recommendations', 'reduce', 'cut', 'cut down']
+  
+  const hasCategory = categories.some(category => input.includes(category))
+  const hasSavingsKeyword = savingsKeywords.some(keyword => input.includes(keyword))
+  
+  return hasCategory && hasSavingsKeyword
+}
+
 const isTrendRequest = (input) => {
   const keywords = ['trend', 'pattern', 'change', 'increase', 'decrease', 'over time', 'month', 'monthly']
   return keywords.some(keyword => input.includes(keyword))
@@ -128,7 +143,8 @@ const isComparisonRequest = (input) => {
 }
 
 const isGeneralSpendingQuestion = (input) => {
-  const keywords = ['spending', 'spend', 'money', 'expenses', 'financial', 'finances', 'budget', 'cost', 'costs', 'bills', 'payments']
+  const keywords = ['spending', 'spend', 'money', 'expenses', 'financial', 'finances', 'budget', 'cost', 'costs', 'bills', 'payments'
+  ]
   return keywords.some(keyword => input.includes(keyword)) && !isSpecificRequest(input)
 }
 
@@ -136,6 +152,7 @@ const isSpecificRequest = (input) => {
   // Check if it's already handled by other specific functions
   return isSpendingSummaryRequest(input) || 
          isCategorySpendingRequest(input) || 
+         isCategorySpecificSavingsRequest(input) ||
          isSavingsRequest(input) || 
          isTrendRequest(input) || 
          isExpenseAnalysisRequest(input) || 
@@ -190,10 +207,65 @@ const getCategorySpending = (input, transactions) => {
     'rent': ['Housing']
   }
   
+  const tips = {
+    'Food & Dining': [
+      '🍳 Cook more meals at home instead of dining out',
+      '📱 Use food delivery apps less frequently',
+      '🥪 Pack lunches for work',
+      '🛒 Plan meals and make shopping lists',
+      '🍽️ Try meal prep on weekends',
+      '🥗 Choose restaurants with lunch specials'
+    ],
+    'Entertainment': [
+      '🎬 Consider subscription sharing with family/friends',
+      '🎵 Look for free entertainment options in your area',
+      '📚 Use your local library for books, movies, and events',
+      '🎮 Wait for sales before buying games or entertainment',
+      '🏞️ Explore free outdoor activities and parks',
+      '🎪 Look for community events and festivals'
+    ],
+    'Shopping': [
+      '🛍️ Create a 24-hour waiting period before non-essential purchases',
+      '🔍 Compare prices across different retailers',
+      '💳 Use cashback apps and browser extensions',
+      '📝 Make shopping lists and stick to them',
+      '🏷️ Look for sales and use coupons',
+      '🛒 Consider buying generic brands'
+    ],
+    'Transport': [
+      '🚗 Consider carpooling or public transportation',
+      '🚲 Use bike-sharing or walk for short distances',
+      '⛽ Use apps to find cheaper gas stations',
+      '🅿️ Look for free parking alternatives',
+      '🚌 Get a monthly transit pass if you use public transport regularly',
+      '🚶‍♀️ Walk or cycle for trips under 2km',
+      '🚕 Use ride-sharing apps during off-peak hours for better rates'
+    ],
+    'Groceries & Cafe': [
+      '☕ Make coffee at home instead of buying daily',
+      '🛒 Shop with a list and stick to it',
+      '🏪 Compare prices at different stores',
+      '🥫 Buy generic brands for basics',
+      '🍌 Buy seasonal produce',
+      '🥪 Prepare your own snacks and lunches'
+    ],
+    'Housing': [
+      '🏠 Consider refinancing if you have a mortgage',
+      '💡 Use energy-efficient appliances to reduce utility bills',
+      '🌡️ Adjust thermostat settings to save on heating/cooling',
+      '🚿 Take shorter showers to reduce water bills',
+      '🏠 Look for roommates to split costs',
+      '🔧 Learn basic home repairs to avoid service calls'
+    ]
+  }
+  
   let targetCategories = []
+  let categoryKey = ''
+  
   for (const [key, categories] of Object.entries(categoryMap)) {
     if (input.includes(key)) {
       targetCategories = categories
+      categoryKey = key
       break
     }
   }
@@ -212,11 +284,34 @@ const getCategorySpending = (input, transactions) => {
   
   const avgTransaction = categoryTransactions > 0 ? categorySpending / categoryTransactions : 0
   
-  return `🏷️ **${targetCategories.join(' & ')} Spending**\n\n` +
-         `💸 **Total Spent:** €${categorySpending.toFixed(2)}\n` +
-         `📊 **Number of Transactions:** ${categoryTransactions}\n` +
-         `💰 **Average per Transaction:** €${avgTransaction.toFixed(2)}\n\n` +
-         `💡 Want some tips on how to save money in this category?`
+  // Get the tips for this category
+  const relevantTips = tips[targetCategories[0]] || []
+  
+  let response = `🏷️ **${targetCategories.join(' & ')} Spending**\n\n`
+  response += `💸 **Total Spent:** €${categorySpending.toFixed(2)}\n`
+  response += `📊 **Number of Transactions:** ${categoryTransactions}\n`
+  response += `💰 **Average per Transaction:** €${avgTransaction.toFixed(2)}\n\n`
+  
+  // Include savings tips directly
+  response += `💡 **${targetCategories.join(' & ')} Savings Tips:**\n`
+  relevantTips.forEach(tip => {
+    response += `${tip}\n`
+  })
+  
+  if (categorySpending > 0) {
+    const potentialSavings = categorySpending * 0.15 // Assume 15% potential savings
+    response += `\n📈 **Potential Monthly Savings:** €${(potentialSavings / 3).toFixed(2)}\n`
+  }
+  
+  response += `\n🔄 **General Tips:**\n`
+  response += `• Track your ${categoryKey} expenses daily\n`
+  response += `• Set a monthly budget for ${categoryKey}\n`
+  response += `• Look for alternatives before making purchases\n`
+  response += `• Consider if the purchase is a need or want\n\n`
+  
+  response += `💬 Want tips for another category or overall savings advice?`
+  
+  return response
 }
 
 const getSavingsAdvice = (transactions) => {
@@ -621,4 +716,118 @@ const categorizeTransaction = (description) => {
   }
   
   return 'Other'
+}
+
+const getCategorySpecificSavings = (input, transactions) => {
+  const categoryMap = {
+    'food': ['Food & Dining', 'Groceries & Cafe'],
+    'dining': ['Food & Dining'],
+    'entertainment': ['Entertainment'],
+    'shopping': ['Shopping'],
+    'transport': ['Transport'],
+    'groceries': ['Groceries & Cafe'],
+    'housing': ['Housing'],
+    'rent': ['Housing']
+  }
+  
+  const tips = {
+    'Food & Dining': [
+      '🍳 Cook more meals at home instead of dining out',
+      '📱 Use food delivery apps less frequently',
+      '🥪 Pack lunches for work',
+      '🛒 Plan meals and make shopping lists',
+      '🍽️ Try meal prep on weekends',
+      '🥗 Choose restaurants with lunch specials'
+    ],
+    'Entertainment': [
+      '🎬 Consider subscription sharing with family/friends',
+      '🎵 Look for free entertainment options in your area',
+      '📚 Use your local library for books, movies, and events',
+      '🎮 Wait for sales before buying games or entertainment',
+      '🏞️ Explore free outdoor activities and parks',
+      '🎪 Look for community events and festivals'
+    ],
+    'Shopping': [
+      '🛍️ Create a 24-hour waiting period before non-essential purchases',
+      '🔍 Compare prices across different retailers',
+      '💳 Use cashback apps and browser extensions',
+      '📝 Make shopping lists and stick to them',
+      '🏷️ Look for sales and use coupons',
+      '🛒 Consider buying generic brands'
+    ],
+    'Transport': [
+      '🚗 Consider carpooling or public transportation',
+      '🚲 Use bike-sharing or walk for short distances',
+      '⛽ Use apps to find cheaper gas stations',
+      '🅿️ Look for free parking alternatives',
+      '🚌 Get a monthly transit pass if you use public transport regularly',
+      '🚶‍♀️ Walk or cycle for trips under 2km',
+      '🚕 Use ride-sharing apps during off-peak hours for better rates'
+    ],
+    'Groceries & Cafe': [
+      '☕ Make coffee at home instead of buying daily',
+      '🛒 Shop with a list and stick to it',
+      '🏪 Compare prices at different stores',
+      '🥫 Buy generic brands for basics',
+      '🍌 Buy seasonal produce',
+      '🥪 Prepare your own snacks and lunches'
+    ],
+    'Housing': [
+      '🏠 Consider refinancing if you have a mortgage',
+      '💡 Use energy-efficient appliances to reduce utility bills',
+      '🌡️ Adjust thermostat settings to save on heating/cooling',
+      '🚿 Take shorter showers to reduce water bills',
+      '🏠 Look for roommates to split costs',
+      '🔧 Learn basic home repairs to avoid service calls'
+    ]
+  }
+  
+  let targetCategories = []
+  let categoryKey = ''
+  
+  for (const [key, categories] of Object.entries(categoryMap)) {
+    if (input.includes(key)) {
+      targetCategories = categories
+      categoryKey = key
+      break
+    }
+  }
+  
+  if (targetCategories.length === 0) {
+    return "I couldn't identify the category you're asking about. Try asking about: food, entertainment, shopping, transport, groceries, or housing!"
+  }
+  
+  // Get spending data for this category
+  const categorySpending = transactions
+    .filter(t => t.amount < 0 && targetCategories.includes(categorizeTransaction(t.description)))
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+  
+  // Get the tips for this category
+  const relevantTips = tips[targetCategories[0]] || []
+  
+  let advice = `💡 **${targetCategories.join(' & ')} Savings Tips**\n\n`
+  
+  if (categorySpending > 0) {
+    advice += `💸 **Current Spending:** €${categorySpending.toFixed(2)}\n\n`
+  }
+  
+  advice += `🎯 **Specific Tips for ${targetCategories.join(' & ')}:**\n`
+  relevantTips.forEach(tip => {
+    advice += `${tip}\n`
+  })
+  
+  if (categorySpending > 0) {
+    const potentialSavings = categorySpending * 0.15 // Assume 15% potential savings
+    advice += `\n📈 **Potential Monthly Savings:** €${(potentialSavings / 3).toFixed(2)}\n`
+  }
+  
+  advice += `\n🔄 **General Tips:**\n`
+  advice += `• Track your ${categoryKey} expenses daily\n`
+  advice += `• Set a monthly budget for ${categoryKey}\n`
+  advice += `• Look for alternatives before making purchases\n`
+  advice += `• Consider if the purchase is a need or want\n\n`
+  
+  advice += `💬 Want tips for another category or overall savings advice?`
+  
+  return advice
 }
