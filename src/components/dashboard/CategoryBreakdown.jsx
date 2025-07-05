@@ -25,7 +25,7 @@ const CategoryBreakdown = ({ monthlyData, selectedMonth, setSelectedMonth }) => 
         </select>
       </div>
       {categoryData.length > 0 && (
-        <div className="space-y-8">
+        <div key={selectedMonth} className="space-y-8 animate-fade-in">
           {/* Modern Pie Chart */}
           <div className="flex justify-center">
             <ResponsiveContainer width="100%" height={400}>
@@ -42,6 +42,8 @@ const CategoryBreakdown = ({ monthlyData, selectedMonth, setSelectedMonth }) => 
                   dataKey="value"
                   stroke="#374151"
                   strokeWidth={2}
+                  animationBegin={0}
+                  animationDuration={800}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -74,7 +76,11 @@ const CategoryBreakdown = ({ monthlyData, selectedMonth, setSelectedMonth }) => 
             {categoryData.map((entry, index) => {
               const percentage = ((entry.value / categoryData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1);
               return (
-                <div key={entry.name} className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg border border-slate-600/50 hover:bg-slate-600/30 transition-colors">
+                <div 
+                  key={entry.name} 
+                  className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg border border-slate-600/50 hover:bg-slate-600/30 transition-colors animate-fade-in-up"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
                   <div 
                     className="w-5 h-5 rounded-full shadow-lg flex-shrink-0"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
