@@ -6,6 +6,7 @@ import MonthlyOverview from '@/components/dashboard/MonthlyOverview'
 import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown'
 import RecentTransactions from '@/components/dashboard/RecentTransactions'
 import SpendingTrend from '@/components/dashboard/SpendingTrend'
+import AlertCard from '@/components/dashboard/AlertCard'
 import csvData from '@assets/codesprint_open_2025_sample_data.csv?raw'
 import { FaCalendarAlt, FaFilter } from 'react-icons/fa'
 
@@ -82,10 +83,15 @@ const Dashboard = () => {
         {/* Summary Cards */}
         <SummaryCards monthlyData={monthlyData} />
 
+        {/* Financial Alerts */}
+        <div className="mb-8">
+          <AlertCard monthlyData={monthlyData} transactions={transactions} />
+        </div>
+
         {/* Monthly Overview Chart */}
         <MonthlyOverview monthlyData={monthlyData} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Category Breakdown */}
           <CategoryBreakdown 
             monthlyData={monthlyData} 
@@ -94,9 +100,7 @@ const Dashboard = () => {
           />
 
           {/* Expense Summary */}
-          <div className="lg:col-span-1">
-            <ExpenseSummary monthlyData={monthlyData} transactions={transactions} />
-          </div>
+          <ExpenseSummary monthlyData={monthlyData} transactions={transactions} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

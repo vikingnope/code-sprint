@@ -11,7 +11,7 @@ const CategoryBreakdown = ({ monthlyData, selectedMonth, setSelectedMonth }) => 
     : []
 
   return (
-    <div className="lg:col-span-2 bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700 p-6 hover:shadow-2xl transition-all duration-300">
+    <div className="bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700 p-6 hover:shadow-2xl transition-all duration-300">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-slate-200">Expense Categories</h2>
         <select 
