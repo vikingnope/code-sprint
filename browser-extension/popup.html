@@ -10,16 +10,17 @@
       min-height: 400px;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+      color: rgba(255, 255, 255, 0.87);
     }
 
     .header {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(51, 65, 85, 0.3);
       padding: 20px;
       text-align: center;
       backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
     }
 
     .header h1 {
@@ -31,7 +32,7 @@
     .header p {
       margin: 0;
       font-size: 12px;
-      opacity: 0.8;
+      color: rgb(148, 163, 184);
     }
 
     .content {
@@ -46,7 +47,7 @@
       margin: 0 0 15px 0;
       font-size: 14px;
       font-weight: 600;
-      opacity: 0.9;
+      color: rgb(148, 163, 184);
     }
 
     .button {
@@ -54,19 +55,21 @@
       padding: 12px;
       margin-bottom: 10px;
       border: none;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(51, 65, 85, 0.8);
       color: white;
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       backdrop-filter: blur(5px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
     }
 
     .button:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-1px);
+      background: rgba(51, 65, 85, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
 
     .button:active {
@@ -74,19 +77,23 @@
     }
 
     .button.primary {
-      background: rgba(59, 130, 246, 0.8);
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
 
     .button.primary:hover {
-      background: rgba(59, 130, 246, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
     }
 
     .button.secondary {
-      background: rgba(16, 185, 129, 0.8);
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
     .button.secondary:hover {
-      background: rgba(16, 185, 129, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
     }
 
     .status {
@@ -95,17 +102,22 @@
       justify-content: space-between;
       padding: 10px;
       margin-bottom: 10px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: rgba(51, 65, 85, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.7);
       font-size: 12px;
     }
 
     .status.connected {
       background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #10b981;
     }
 
     .status.disconnected {
       background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ef4444;
     }
 
     .status-dot {
@@ -132,20 +144,21 @@
 
     .checkbox input {
       margin-right: 8px;
-      accent-color: #3B82F6;
+      accent-color: #8b5cf6;
     }
 
     .recent-notifications {
       max-height: 150px;
       overflow-y: auto;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 6px;
+      background: rgba(51, 65, 85, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 8px;
       padding: 10px;
     }
 
     .notification-item {
       padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.7);
       font-size: 11px;
     }
 
@@ -159,11 +172,12 @@
     }
 
     .notification-message {
-      opacity: 0.8;
+      color: rgb(148, 163, 184);
+      margin-bottom: 4px;
     }
 
     .notification-time {
-      opacity: 0.6;
+      color: rgb(148, 163, 184);
       font-size: 10px;
       margin-top: 2px;
     }
@@ -172,18 +186,37 @@
       padding: 15px 20px;
       text-align: center;
       font-size: 10px;
-      opacity: 0.6;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgb(148, 163, 184);
+      border-top: 1px solid rgba(51, 65, 85, 0.7);
     }
 
     .loading {
       display: inline-block;
       width: 12px;
       height: 12px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(148, 163, 184, 0.3);
       border-radius: 50%;
-      border-top-color: white;
+      border-top-color: #8b5cf6;
       animation: spin 1s ease-in-out infinite;
+    }
+
+    /* Custom scrollbar to match main site */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
     }
 
     @keyframes spin {
@@ -217,6 +250,10 @@
       <button id="trigger-transaction" class="button secondary">
         Simulate New Transaction
       </button>
+      <p style="font-size: 11px; color: rgb(148, 163, 184); margin-top: 10px;">
+        📋 <strong>Note:</strong> These buttons will request notification permissions if needed. 
+        Look for browser notifications (not just popup messages).
+      </p>
     </div>
 
     <div class="section">

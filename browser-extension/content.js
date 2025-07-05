@@ -15,19 +15,41 @@ class SpendyContentScript {
   detectSpendyApp() {
     // Check if we're on the Spendy financial dashboard
     const title = document.title.toLowerCase();
-    const bodyText = document.body.textContent.toLowerCase();
+    const bodyText = document.body?.textContent?.toLowerCase() || '';
+    const url = window.location.href.toLowerCase();
     
-    return (
-      title.includes('spendy') ||
-      bodyText.includes('spendy') ||
-      document.querySelector('[data-testid*="spendy"]') ||
-      document.querySelector('.spendy') ||
-      window.location.hostname.includes('spendy')
-    );
+    // Check multiple indicators for Spendy app
+    const indicators = [
+      title.includes('spendy'),
+      bodyText.includes('spendy'),
+      url.includes('localhost:5173'), // Common Vite dev server
+      url.includes('localhost:3000'), // Common React dev server
+      document.querySelector('[data-testid*="spendy"]'),
+      document.querySelector('.spendy'),
+      document.querySelector('*[class*="spendy"]'),
+      // Check for common financial dashboard elements
+      bodyText.includes('dashboard'),
+      bodyText.includes('transaction'),
+      bodyText.includes('expense'),
+      bodyText.includes('budget'),
+      // Check for navigation elements
+      document.querySelector('nav'),
+      document.querySelector('[class*="nav"]'),
+      // Check for React root
+      document.querySelector('#root')
+    ];
+    
+    // Return true if we find at least 2 indicators
+    const foundIndicators = indicators.filter(Boolean).length;
+    console.log('Spendy Extension: Detection indicators found:', foundIndicators);
+    
+    return foundIndicators >= 2;
   }
 
   initialize() {
     console.log('Spendy Extension: Initialized on financial dashboard');
+    console.log('Spendy Extension: Current URL:', window.location.href);
+    console.log('Spendy Extension: Page title:', document.title);
     
     // Wait for the app to fully load
     if (document.readyState === 'loading') {
@@ -277,13 +299,24 @@ class SpendyContentScript {
   }
 
   handleMessage(request, sender, sendResponse) {
+    console.log('Spendy Extension: Received message:', request.action);
+    
     switch (request.action) {
       case 'GET_PAGE_DATA':
-        sendResponse({
+        const pageData = {
           isSpendyApp: this.isSpendyApp,
           transactionCount: this.lastTransactionCount,
-          url: window.location.href
-        });
+          url: window.location.href,
+          title: document.title,
+          debugInfo: {
+            hasNavigation: !!document.querySelector('nav'),
+            hasRoot: !!document.querySelector('#root'),
+            bodyContainsSpendyText: document.body?.textContent?.toLowerCase().includes('spendy'),
+            titleContainsSpendyText: document.title.toLowerCase().includes('spendy')
+          }
+        };
+        console.log('Spendy Extension: Sending page data:', pageData);
+        sendResponse(pageData);
         break;
 
       case 'TRIGGER_SAMPLE_TRANSACTION':

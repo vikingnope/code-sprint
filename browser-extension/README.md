@@ -4,11 +4,27 @@ A browser extension that provides real-time notifications for financial transact
 
 ## Features
 
-- **Real-time Notifications**: Get instant browser notifications when new transactions are detected
+- **Real-time Browser Notifications**: Get instant **system-level notifications** that pop up from your browser
 - **Manual Triggers**: Test the notification system with sample alerts
 - **Customizable Preferences**: Enable/disable different types of alerts
 - **Dashboard Integration**: Automatically detects when you're on the Spendy financial dashboard
 - **Transaction Monitoring**: Monitors for new transactions and spending patterns
+
+## How Notifications Work
+
+### 🔔 Browser Notifications (Primary)
+
+- **System-level notifications** that appear outside the browser window
+- **Pop up from your OS notification area** (Windows Action Center, macOS Notification Center)
+- **Show even when browser is minimized** or you're in another tab
+- **Clickable** - clicking the notification opens the Spendy dashboard
+- **Display the Spendy icon** and alert message
+
+### 📱 Extension Popup (Secondary)
+
+- **Internal status updates** shown in the extension popup
+- **Recent notifications history** for reference
+- **Connection status** and manual testing buttons
 
 ## Installation
 
@@ -58,6 +74,12 @@ A browser extension that provides real-time notifications for financial transact
 3. **Test Notifications**
    - Click "Send Sample Alert" to test the notification system
    - Click "Simulate New Transaction" to trigger a transaction alert
+   - **You should see browser notifications pop up** from your OS notification area
+
+4. **Enable Notifications (Important!)**
+   - If no browser notifications appear, check the address bar for a 🔔 icon
+   - Click it and select "Allow" for notifications
+   - Or go to `chrome://settings/content/notifications` and ensure notifications are enabled
 
 ### Manual Testing
 
@@ -98,6 +120,33 @@ You can modify the extension by editing:
 
 ## Troubleshooting
 
+### Extension Shows "Dashboard Disconnected"
+
+If the extension shows "Dashboard Disconnected" even when you're on the Spendy dashboard:
+
+1. **Check the URL**
+   - Make sure you're on `http://localhost:5173` (or your app's URL)
+   - The extension looks for specific URL patterns like `localhost:5173`, `localhost:3000`
+
+2. **Refresh the Page**
+   - After installing the extension, refresh the dashboard page
+   - The content script needs to load after the page is ready
+
+3. **Check Browser Console**
+   - Open Developer Tools (F12)
+   - Look for "Spendy Extension" messages in the Console tab
+   - Check for any error messages that might indicate issues
+
+4. **Verify Extension is Active**
+   - Go to `chrome://extensions/`
+   - Make sure "Spendy Transaction Alerts" is enabled
+   - Check for any error messages in the extension details
+
+5. **Manual Detection Test**
+   - Open the extension popup
+   - Check if the connection status updates after a few seconds
+   - Try clicking the "Send Sample Alert" button to test functionality
+
 ### Extension Not Working
 
 1. **Check Extension Status**
@@ -112,25 +161,50 @@ You can modify the extension by editing:
    - Try the "Send Sample Alert" button
    - Check if browser notifications are enabled for your browser
 
-### No Notifications Appearing
+### No Browser Notifications Appearing
 
-1. **Check Browser Permissions**
-   - Ensure notifications are enabled for your browser
-   - Check site-specific notification settings
+If you're not seeing **pop-up notifications** from your browser/OS:
 
-2. **Verify Extension Permissions**
-   - Make sure the extension has notification permissions
-   - Check the extension's permissions in the browser settings
+1. **First Time Setup - Request Permissions**
+   - Click the extension icon in your browser toolbar
+   - Click "Send Sample Alert" button
+   - **This will trigger the permission request**
+   - Look for a notification permission prompt from your browser
+   - Click "Allow" when prompted
 
-3. **Test Manual Triggers**
-   - Use the popup's manual trigger buttons
+2. **If No Permission Prompt Appears**
+   - Go to `chrome://settings/content/notifications`
+   - Look for "localhost:5173" or your site in the blocked list
+   - If found, click the trash icon to remove it
+   - Try the "Send Sample Alert" button again
+
+3. **Manual Permission Check**
+   - Right-click the extension icon → "Manage extensions"
+   - Look for "Site access" section
+   - Make sure the extension has access to your site
+   - Check that "Notifications" is listed in permissions
+
+4. **Alternative Permission Method**
+   - Visit your dashboard at `localhost:5173`
+   - Look for a 🔔 icon in the address bar
+   - Click it and select "Allow" for notifications
+   - Refresh the page and try the extension again
+
+5. **Test Notifications**
+   - Click the extension icon and use "Send Sample Alert"
+   - You should see a **system notification** pop up, not just text in the popup
    - Check the browser console for any error messages
+
+6. **Check OS Notification Settings**
+   - **Windows**: Settings > System > Notifications & actions
+   - **macOS**: System Preferences > Notifications > Chrome
+   - **Linux**: Check your desktop environment's notification settings
 
 ## Development
 
 ### File Structure
 
-```
+```text
 browser-extension/
 ├── manifest.json          # Extension configuration
 ├── background.js          # Service worker for notifications
@@ -138,6 +212,10 @@ browser-extension/
 ├── popup.html            # Extension popup interface
 ├── popup.js              # Popup functionality
 ├── icons/                # Extension icons (16, 32, 48, 128px)
+│   ├── spendy16.png
+│   ├── spendy32.png
+│   ├── spendy48.png
+│   └── spendy128.png
 └── README.md             # This file
 ```
 

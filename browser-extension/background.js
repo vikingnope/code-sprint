@@ -169,21 +169,29 @@ class SpendyExtensionBackground {
   }
 
   async sendNotification(alert) {
+    console.log('Spendy Extension: Attempting to send notification:', alert);
+    
     const notificationId = `spendy-${Date.now()}`;
     
     const notificationOptions = {
       type: 'basic',
-      iconUrl: 'icons/icon48.png',
+      iconUrl: 'icons/spendy48.png',
       title: alert.title,
       message: alert.message,
       priority: this.getSeverityPriority(alert.severity),
       requireInteraction: alert.severity === 'CRITICAL'
     };
 
-    await chrome.notifications.create(notificationId, notificationOptions);
-    
-    // Store notification for tracking
-    await this.storeNotification(notificationId, alert);
+    try {
+      await chrome.notifications.create(notificationId, notificationOptions);
+      console.log('Spendy Extension: Notification created successfully:', notificationId);
+      
+      // Store notification for tracking
+      await this.storeNotification(notificationId, alert);
+    } catch (error) {
+      console.error('Spendy Extension: Failed to create notification:', error);
+      throw error;
+    }
   }
 
   async triggerManualAlert(alertData) {
@@ -275,6 +283,14 @@ class SpendyExtensionBackground {
   async initializeExtension() {
     console.log('Spendy Transaction Alerts Extension initialized');
     
+    // Request notification permissions
+    try {
+      const hasPermission = await this.requestNotificationPermission();
+      console.log('Notification permission granted:', hasPermission);
+    } catch (error) {
+      console.error('Failed to request notification permission:', error);
+    }
+    
     // Load preferences
     this.alertPreferences = await this.getPreferences();
     
@@ -283,6 +299,37 @@ class SpendyExtensionBackground {
     
     // Set up badge
     await chrome.action.setBadgeBackgroundColor({ color: '#3B82F6' });
+  }
+
+  async requestNotificationPermission() {
+    return new Promise((resolve) => {
+      chrome.notifications.getPermissionLevel((level) => {
+        console.log('Current notification permission level:', level);
+        if (level === 'granted') {
+          resolve(true);
+        } else {
+          // Try to create a test notification to trigger permission request
+          chrome.notifications.create('test-permission', {
+            type: 'basic',
+            iconUrl: 'icons/spendy48.png',
+            title: 'Spendy Extension Ready',
+            message: 'Notifications are now enabled!'
+          }, (notificationId) => {
+            if (chrome.runtime.lastError) {
+              console.error('Permission request failed:', chrome.runtime.lastError);
+              resolve(false);
+            } else {
+              console.log('Permission granted via test notification');
+              // Clear the test notification after a few seconds
+              setTimeout(() => {
+                chrome.notifications.clear('test-permission');
+              }, 3000);
+              resolve(true);
+            }
+          });
+        }
+      });
+    });
   }
 }
 

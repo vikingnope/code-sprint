@@ -16,10 +16,24 @@ class SpendyPopup {
 
   async initialize() {
     await this.loadPreferences();
+    await this.checkNotificationPermissions();
     this.setupEventListeners();
     this.updateUI();
     this.checkConnection();
     this.loadRecentNotifications();
+  }
+
+  async checkNotificationPermissions() {
+    try {
+      chrome.notifications.getPermissionLevel((level) => {
+        console.log('Notification permission level:', level);
+        if (level !== 'granted') {
+          this.addNotification('Permissions Needed', 'Click "Send Sample Alert" to enable notifications', 'warning');
+        }
+      });
+    } catch (error) {
+      console.error('Failed to check notification permissions:', error);
+    }
   }
 
   setupEventListeners() {
@@ -98,21 +112,56 @@ class SpendyPopup {
       const activeTab = tabs[0];
 
       if (activeTab) {
-        const response = await chrome.tabs.sendMessage(activeTab.id, {
-          action: 'GET_PAGE_DATA'
-        });
-
-        if (response && response.isSpendyApp) {
-          this.isConnected = true;
-          this.addNotification('Connected to Spendy Dashboard', 'Monitoring active', 'success');
-        } else {
+        console.log('Checking connection for tab:', activeTab.url);
+        
+        // Check if the current tab URL matches our expected patterns
+        const isValidUrl = activeTab.url.includes('localhost') || 
+                          activeTab.url.includes('vercel.app') || 
+                          activeTab.url.includes('netlify.app');
+        
+        if (!isValidUrl) {
           this.isConnected = false;
-          this.addNotification('Not on Spendy Dashboard', 'Navigate to dashboard for monitoring', 'info');
+          this.addNotification('Wrong Page', 'Please navigate to the Spendy dashboard', 'info');
+          this.updateUI();
+          return;
+        }
+
+        try {
+          const response = await chrome.tabs.sendMessage(activeTab.id, {
+            action: 'GET_PAGE_DATA'
+          });
+
+          console.log('Received response from content script:', response);
+
+          if (response && response.isSpendyApp) {
+            this.isConnected = true;
+            this.addNotification('Connected to Spendy Dashboard', 'Monitoring active', 'success');
+          } else {
+            this.isConnected = false;
+            if (response && response.debugInfo) {
+              console.log('Debug info:', response.debugInfo);
+            }
+            this.addNotification('Not on Spendy Dashboard', 'Extension will activate when you visit the dashboard', 'info');
+          }
+        } catch (messageError) {
+          console.log('Content script not responding, checking URL patterns...');
+          
+          // Fallback: check URL patterns if content script doesn't respond
+          if (activeTab.url.includes('localhost:5173') || 
+              activeTab.url.includes('localhost:3000') ||
+              activeTab.title.toLowerCase().includes('spendy')) {
+            this.isConnected = true;
+            this.addNotification('Dashboard Detected', 'Extension ready (reload page if needed)', 'success');
+          } else {
+            this.isConnected = false;
+            this.addNotification('Navigate to Dashboard', 'Go to localhost:5173 or your Spendy app', 'info');
+          }
         }
       }
     } catch (error) {
       console.error('Failed to check connection:', error);
       this.isConnected = false;
+      this.addNotification('Connection Error', 'Unable to check dashboard status', 'error');
     }
 
     this.updateUI();
@@ -126,6 +175,14 @@ class SpendyPopup {
     button.disabled = true;
 
     try {
+      // First, try to request notification permissions
+      const hasPermission = await this.requestNotificationPermission();
+      
+      if (!hasPermission) {
+        this.addNotification('Permission Required', 'Notifications blocked - check browser settings', 'error');
+        return;
+      }
+
       await chrome.runtime.sendMessage({
         action: 'MANUAL_TRIGGER',
         data: { source: 'popup' }
@@ -141,6 +198,37 @@ class SpendyPopup {
         button.disabled = false;
       }, 1000);
     }
+  }
+
+  async requestNotificationPermission() {
+    return new Promise((resolve) => {
+      chrome.notifications.getPermissionLevel((level) => {
+        console.log('Current notification permission level:', level);
+        if (level === 'granted') {
+          resolve(true);
+        } else {
+          // Try to create a test notification to trigger permission request
+          chrome.notifications.create('permission-request', {
+            type: 'basic',
+            iconUrl: 'icons/spendy48.png',
+            title: 'Enable Spendy Notifications',
+            message: 'Click Allow to receive financial alerts'
+          }, (notificationId) => {
+            if (chrome.runtime.lastError) {
+              console.error('Permission request failed:', chrome.runtime.lastError);
+              resolve(false);
+            } else {
+              console.log('Permission granted via test notification');
+              // Clear the test notification after a few seconds
+              setTimeout(() => {
+                chrome.notifications.clear('permission-request');
+              }, 3000);
+              resolve(true);
+            }
+          });
+        }
+      });
+    });
   }
 
   async triggerTransactionAlert() {
