@@ -206,6 +206,74 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
+/* Chatbot animations */
+@keyframes slideUpFadeIn {
+  from {
+    transform: translateY(10px) translateX(10px) scale(0.8);
+    opacity: 0;
+    transform-origin: bottom right;
+  }
+  to {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 1;
+    transform-origin: bottom right;
+  }
+}
+
+@keyframes slideDownFadeOut {
+  from {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 1;
+    transform-origin: bottom right;
+  }
+  to {
+    transform: translateY(10px) translateX(10px) scale(0.8);
+    opacity: 0;
+    transform-origin: bottom right;
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up-fade-in {
+  animation: slideUpFadeIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+.animate-slide-down-fade-out {
+  animation: slideDownFadeOut 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 2s infinite;
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
 /* Dark/Light mode styles */
 @media (prefers-color-scheme: light) {
   :root {

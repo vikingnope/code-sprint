@@ -4,6 +4,7 @@ import { generateResponse } from '@/utils/chatbotEngine'
 
 const SpendyBuddy = ({ transactions, monthlyData }) => {
   const [isOpen, setIsOpen] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -34,6 +35,24 @@ const SpendyBuddy = ({ transactions, monthlyData }) => {
       }, 100)
     }
   }, [isOpen])
+
+  const handleToggleChat = () => {
+    if (isOpen) {
+      // Closing
+      setIsAnimating(true)
+      setIsOpen(false) // Set isOpen to false immediately to trigger closing animation
+      setTimeout(() => {
+        setIsAnimating(false)
+      }, 400) // Match the animation duration
+    } else {
+      // Opening
+      setIsOpen(true)
+      setIsAnimating(true)
+      setTimeout(() => {
+        setIsAnimating(false)
+      }, 400) // Match the animation duration
+    }
+  }
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return
@@ -162,12 +181,12 @@ const SpendyBuddy = ({ transactions, monthlyData }) => {
     }
   }
 
-  if (!isOpen) {
+  if (!isOpen && !isAnimating) {
     return (
       <div className="fixed bottom-6 right-6 z-50">
         <button
-          onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group"
+          onClick={handleToggleChat}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group animate-bounce-subtle"
         >
           <FaRobot className="text-2xl group-hover:animate-pulse" />
           <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-pulse">
@@ -180,7 +199,15 @@ const SpendyBuddy = ({ transactions, monthlyData }) => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <div className="bg-slate-900 rounded-lg shadow-2xl border border-slate-700 w-96 h-[500px] flex flex-col overflow-hidden">
+      {/* Chatbot window - show during opening or when open, hide only when fully closed */}
+      {(isOpen || isAnimating) && (
+        <div className={`
+          bg-slate-900 rounded-lg shadow-2xl border border-slate-700 w-96 h-[500px] flex flex-col overflow-hidden
+          origin-bottom-right
+          ${isOpen && !isAnimating ? 'opacity-100 scale-100' : ''}
+          ${!isOpen && isAnimating ? 'animate-slide-down-fade-out' : ''}
+          ${isOpen && isAnimating ? 'animate-slide-up-fade-in' : ''}
+        `}>
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -193,7 +220,7 @@ const SpendyBuddy = ({ transactions, monthlyData }) => {
             </div>
           </div>
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={handleToggleChat}
             className="p-2 hover:bg-white/20 rounded-full transition-colors"
           >
             <FaTimes />
@@ -202,10 +229,11 @@ const SpendyBuddy = ({ transactions, monthlyData }) => {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-800">
-              {messages.map((message) => (
+              {messages.map((message, index) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div
                     className={`max-w-[80%] p-3 rounded-lg ${
@@ -228,7 +256,7 @@ const SpendyBuddy = ({ transactions, monthlyData }) => {
 
               {/* Show quick actions as a bot message only for the first interaction */}
               {messages.length === 1 && (
-                <div className="flex justify-start">
+                <div className="flex justify-start animate-fade-in" style={{ animationDelay: '0.3s' }}>
                   <div className="bg-slate-700 text-slate-100 p-3 rounded-lg mr-4 max-w-[80%]">
                     <div className="text-sm mb-3">Here are some quick actions to get you started:</div>
                     <div className="flex flex-wrap gap-2">
@@ -247,7 +275,7 @@ const SpendyBuddy = ({ transactions, monthlyData }) => {
               )}
 
               {isTyping && (
-                <div className="flex justify-start">
+                <div className="flex justify-start animate-fade-in">
                   <div className="bg-slate-700 text-slate-100 p-3 rounded-lg mr-4">
                     <div className="flex items-center gap-1">
                       <div className="flex space-x-1">
@@ -285,7 +313,8 @@ const SpendyBuddy = ({ transactions, monthlyData }) => {
               </div>
             </div>
         </div>
-      </div>
+      )}
+    </div>
   )
 }
 
