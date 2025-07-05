@@ -71,7 +71,7 @@ const AlertSettings = ({ onClose }) => {
           </button>
         </div>
         
-        <div className="px-4 py-4 space-y-6 pb-32">
+        <div className="px-4 py-4 space-y-6 pb-40">
           {/* Budget Thresholds */}
           <div>
             <h3 className="text-base font-semibold text-white mb-4">Category Budgets (€)</h3>
