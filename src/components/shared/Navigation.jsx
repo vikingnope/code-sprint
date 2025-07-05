@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { FaHome, FaChartBar, FaWallet, FaPiggyBank, FaBars, FaTimes } from 'react-icons/fa'
+import { FaChartBar, FaWallet, FaPiggyBank, FaBars, FaTimes } from 'react-icons/fa'
 import { useState } from 'react'
 
 const Navigation = () => {
@@ -18,6 +18,30 @@ const Navigation = () => {
     setIsMenuOpen(false)
   }
 
+  const navigationItems = [
+    { path: '/', icon: FaChartBar, label: 'Dashboard' },
+    { path: '/savings', icon: FaPiggyBank, label: 'Savings' }
+  ]
+
+  const renderNavLink = (item, isMobile = false) => {
+    const Icon = item.icon
+    const baseClasses = `flex items-center gap-${isMobile ? '3' : '2'} px-${isMobile ? '3' : '4'} py-${isMobile ? '3' : '2'} rounded-lg text-${isMobile ? 'base' : 'sm'} font-medium transition-all duration-200`
+    const activeClasses = 'bg-slate-700 text-white shadow-lg ring-2 ring-blue-500/50'
+    const inactiveClasses = 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+    
+    return (
+      <Link 
+        key={item.path}
+        to={item.path}
+        onClick={isMobile ? closeMenu : undefined}
+        className={`${baseClasses} ${isActive(item.path) ? activeClasses : inactiveClasses}`}
+      >
+        <Icon className={isMobile ? 'text-lg' : ''} />
+        {item.label}
+      </Link>
+    )
+  }
+
   return (
     <nav className="bg-gradient-to-r from-slate-800 to-slate-900 shadow-xl border-b border-slate-700">
       <div className="max-w-7xl mx-auto px-4">
@@ -34,39 +58,7 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-2">
-            <Link 
-              to="/" 
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                isActive('/') 
-                  ? 'bg-slate-700 text-white shadow-lg ring-2 ring-blue-500/50' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              <FaHome />
-              Home
-            </Link>
-            <Link 
-              to="/dashboard" 
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                isActive('/dashboard') 
-                  ? 'bg-slate-700 text-white shadow-lg ring-2 ring-blue-500/50' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              <FaChartBar />
-              Dashboard
-            </Link>
-            <Link 
-              to="/savings" 
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                isActive('/savings') 
-                  ? 'bg-slate-700 text-white shadow-lg ring-2 ring-blue-500/50' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              <FaPiggyBank />
-              Savings
-            </Link>
+            {navigationItems.map(item => renderNavLink(item))}
           </div>
 
           {/* Desktop Welcome Message */}
@@ -97,42 +89,7 @@ const Navigation = () => {
         <div className="md:hidden border-t border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900">
           <div className="max-w-7xl mx-auto px-4">
             <div className="py-3 space-y-1">
-              <Link 
-                to="/" 
-                onClick={closeMenu}
-                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
-                  isActive('/') 
-                    ? 'bg-slate-700 text-white shadow-lg ring-2 ring-blue-500/50' 
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-                }`}
-              >
-                <FaHome className="text-lg" />
-                Home
-              </Link>
-              <Link 
-                to="/dashboard" 
-                onClick={closeMenu}
-                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
-                  isActive('/dashboard') 
-                    ? 'bg-slate-700 text-white shadow-lg ring-2 ring-blue-500/50' 
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-                }`}
-              >
-                <FaChartBar className="text-lg" />
-                Dashboard
-              </Link>
-              <Link 
-                to="/savings" 
-                onClick={closeMenu}
-                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
-                  isActive('/savings') 
-                    ? 'bg-slate-700 text-white shadow-lg ring-2 ring-blue-500/50' 
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-                }`}
-              >
-                <FaPiggyBank className="text-lg" />
-                Savings
-              </Link>
+              {navigationItems.map(item => renderNavLink(item, true))}
               <div className="pt-3 mt-3 border-t border-slate-700">
                 <div className="bg-slate-700/50 backdrop-blur-sm rounded-lg px-3 py-2 border border-slate-600">
                   <span className="text-slate-200 text-sm font-medium">
